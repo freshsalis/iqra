@@ -1,0 +1,1 @@
+{"result":{"text":"square root of 78 over 5 end root"},"status":"ok"}

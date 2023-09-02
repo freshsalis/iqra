@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<!--
+Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
+-->
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>CKEditor Sample</title>
+	<script src="../ckeditor.js"></script>
+	<script src="js/sample.js"></script>
+	<!-- <script type="text/javascript" src="js/MathJax/MathJax.js"></script> -->
+
+	<link rel="stylesheet" href="css/samples.css">
+	<link rel="stylesheet" href="toolbarconfigurator/lib/codemirror/neo.css">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<meta name="description" content="Try the latest sample of CKEditor 4 and learn more about customizing your WYSIWYG editor with endless possibilities.">
+	<!-- <script>window.MathJax = { MathML: { extensions: ["mml3.js", "content-mathml.js"]}};</script> -->
+    <script id="MathJax-script" async src="./MathJax-master/es5/mml-chtml.js"></script>
+
+</head>
+<body id="main">
+
+	<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>&#xA0;</mo><mo>=</mo><mo>&#xA0;</mo><mfrac><mrow><mo>-</mo><mo>&#xA0;</mo><mi>b</mi><mo>&#xA0;</mo><mo>&#xB1;</mo><msqrt><msup><mi>b</mi><mn>2</mn></msup><mo>-</mo><mn>4</mn><mi>a</mi><mi>c</mi></msqrt></mrow><mrow><mn>2</mn><mi>a</mi></mrow></mfrac></math>
+	<br>
+	<math xmlns="http://www.w3.org/1998/Math/MathML"><msubsup><mo>&#8747;</mo><mn>1</mn><mn>3</mn></msubsup><mn>7</mn><mi>X</mi><mo>&#160;</mo><mo>+</mo><mo>&#160;</mo><mn>2</mn><mi>a</mi></math>
+<main>
+	<div class="adjoined-bottom1">
+		<div class="grid-container">
+			<div class="grid-width-100">
+				<input type="text" id="editor">
+				<button onclick="myFunction()">Try it</button>
+
+				<p id="demo"></p>
+
+				Option 1: <input type="text" id="editor2">
+				<br>
+				Option 2: <input type="text" id="editor3">
+
+			</div>
+		</div>
+	</div>
+
+	
+</main>
+<script>
+	initSample();
+
+	CKEDITOR.replace('editor2', { height: 100, width: 500 });
+	CKEDITOR.replace('editor3', { height: 100, width: 500});
+function myFunction() {
+	var data = CKEDITOR.instances.editor.getData();
+
+  alert(data)
+  document.getElementById("demo").innerHTML = data;
+}
+</script>
+
+</body>
+</html>
