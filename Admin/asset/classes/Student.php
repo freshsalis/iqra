@@ -59,7 +59,7 @@ class Student{
 
 
             <div class="box-body">
-            <button data-toggle="modal" data-target="#del_batch_stud_modal" data-whatever="@mdo" test='.$test_id.' id="batch_del_student" batch='.$batch.' class="btn btn-md btn-danger pull-right">Delete batch '.$batch.'  students <span class="glyphicon glyphicon-delete"></span></button>
+            <button data-toggle="modal" data-target="#del_batch_stud_modal" data-whatever="@mdo" test='.$test_id.' id="batch_del_student" batch="" class="btn btn-md btn-danger pull-right">Delete all  students <span class="glyphicon glyphicon-delete"></span></button>
             <br><br/>
             <table id="example1" class="table table-bordered table-striped table-responsive">
                 <thead>
@@ -68,18 +68,14 @@ class Student{
                     <th>Student Name</th>
                     <th>Username</th>
                     <th>Department</th>
-                    <th>Batch</th>
                     <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>';
-        if ($batch == 'all') {
-            $sql = "SELECT * FROM schedule_student s,test t WHERE s.test_id='".$test_id."' And
-                t.test_id=s.test_id   ORDER BY surname";
-        }else{
-            $sql = "SELECT * FROM schedule_student s,test t WHERE s.test_id='".$test_id."' And
-                t.test_id=s.test_id AND batch='".$batch."'   ORDER BY surname";
-        }
+
+                $sql = "SELECT * FROM schedule_student s,exam e WHERE s.exam_id='".$test_id."' And
+                e.exam_id=s.exam_id   ORDER BY surname";
+        
         
         $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
         $sn = 0;
@@ -93,14 +89,12 @@ class Student{
                 $name = $row['surname']." ".$row['othername'];
                 $username = $row['reg_no'];
                 $dept = $row['dept'];
-                $batch = $row['batch'];
 
                 $r .= '<tr>
 						<td>' . $sn . '</td>
 						<td>' . $name . '</td>
 						<td>' . $username . ' </td>
 						<td>' . $dept . ' </td>
-						<td>' . $batch . ' </td>
 						<td>
 							<a title="edit" href="javascript:void(0)" rel="student" class="btn btn-primary btn-sm edit" data-toggle="modal" data-target="#addstudent" data-whatever="@mdo" onclick="mode(' . $id . ','.$test_id.');">
 							    <span class="glyphicon glyphicon-pencil"></span>
@@ -161,30 +155,19 @@ class Student{
 		$numrows = mysqli_num_rows($qry);
 
 		if ($numrows ==1){
-			if ($batch == 'all') {
-                $del1="DELETE FROM schedule_student WHERE test_id='".$test_id."' ";
+                $del1="DELETE FROM schedule_student WHERE exam_id='".$test_id."' ";
                 $response1= mysqli_query(conn(), $del1) or die(mysqli_error(conn()));
-                $del2="DELETE FROM attendance   WHERE test_id='".$test_id."' ";
+                $del2="DELETE FROM attendance   WHERE exam_id='".$test_id."' ";
                 $response2= mysqli_query(conn(), $del2) or die(mysqli_error(conn()));
-                $del4="DELETE FROM testscore   WHERE testid='".$test_id."' ";
+                $del4="DELETE FROM testscore   WHERE paper_id='".$test_id."' ";
                 $response1= mysqli_query(conn(), $del4) or die(mysqli_error(conn()));
-                $del5="DELETE FROM track_timer   WHERE test_id='".$test_id."' ";
+                $del5="DELETE FROM track_timer   WHERE paper_id='".$test_id."' ";
                 $response1= mysqli_query(conn(), $del5) or die(mysqli_error(conn()));
-                $del6="DELETE FROM sub_question   WHERE test_id='".$test_id."' ";
+                $del6="DELETE FROM sub_question   WHERE paper_id='".$test_id."' ";
                 $response1= mysqli_query(conn(), $del6) or die(mysqli_error(conn()));
             
                 return 1;
                 
-            }else{
-                $del="DELETE FROM schedule_student 
-                 WHERE test_id='".$test_id."' AND batch='".$batch."'";
-                $response= mysqli_query(conn(), $del) or die(mysqli_error(conn()));
-
-                if ($response) {
-                    return 1;
-                }
-                
-            }
             
             $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
 			return ;
@@ -398,22 +381,22 @@ class Student{
         $testid = $_POST['testId'];
         $time = $_POST['time'];
 
-        $sql = "select * FROM track_timer WHERE stdid='".$studentId."' AND test_id='".$testid."'";
+        $sql = "select * FROM track_timer WHERE stdid='".$studentId."' AND paper_id='".$testid."'";
         $query = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
         if(mysqli_num_rows($query) > 0){
-            $sql2 = "UPDATE track_timer SET time='".$time."' WHERE stdid='".$studentId."' AND test_id='".$testid."'";
+            $sql2 = "UPDATE track_timer SET time='".$time."' WHERE stdid='".$studentId."' AND paper_id='".$testid."'";
             $query2 = mysqli_query(conn(), $sql2) or die(mysqli_error(conn()));
             if($query2) echo "updated";
         }else{
-            $sql2 = "INSERT INTO track_timer (stdId,test_id,time) VALUES('".$studentId."','".$testid."','".$time."')";
+            $sql2 = "INSERT INTO track_timer (stdId,paper_id,time) VALUES('".$studentId."','".$testid."','".$time."')";
             $query2 = mysqli_query(conn(), $sql2) or die(mysqli_error(conn()));
             if($query2) echo "inserted";
         }
     }
 
 
-    public function getScheduleForm($test_id){
-        $sql = "SELECT * FROM test WHERE test_id='" . $test_id . "' limit 1";
+    public function getScheduleForm($exam_id){
+        $sql = "SELECT * FROM exam WHERE exam_id='" . $exam_id . "' limit 1";
         $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
         $r = '';
         if (mysqli_num_rows($q1) > 0) {
@@ -430,22 +413,10 @@ class Student{
                                         <div class="input-group">
                                             <span class="input-group-addon">Select file</span>
                                             <input type="file" name="uploadFile" id="uploadFile" class="form-control" placeholder=""/>
-                                            <input type="hidden" value="'.$test_id.'" name="test_id" id="test_id" class="" placeholder=""/>
+                                            <input type="hidden" value="'.$exam_id.'" name="test_id" id="test_id" class="" placeholder=""/>
                                                </div>
                                          <br/>
-                                         <div class="input-group">
-                                            <span class="input-group-addon">Batch</span>
-                                            <select class="form-control" name="batch" id="batch">
-                                                <option value="">-Select option-</option>
-                                                
-                                           
-                                        ';
-                                        for ($i=1; $i <= $row['batches']; $i++) { 
-                                            $r .='<option value="'.$i.'">Batch '.$i.'</option>';
-                                        }
-                                        $r .='
-                                        </select>
-                                        </div><br>
+                                         
                         <input type="submit" id="uploadStudents" class="btn btn-primary form-control uploadStudents" rel="uploadStudents" value="Upload" placeholder="">
 
 
@@ -485,28 +456,28 @@ class Student{
         
             $time_in = date('Y-m-d h:i:s');
             $ip = $_SERVER['REMOTE_ADDR'];
-            $s1 = 'select * from attendance WHERE stdid="' . $stdid . '"    AND test_id="'.$test_id.'"';
+            $s1 = 'select * from attendance WHERE stdid="' . $stdid . '"    AND paper_id="'.$test_id.'"';
             $q1 = mysqli_query(conn(), $s1) or die(mysqli_error(conn()));
+            $row = mysqli_fetch_assoc($q1);
 
             if (mysqli_num_rows($q1) > 0) {
                 $sql = 'UPDATE attendance SET session_status=1
-                WHERE stdid="'.$stdid.'" AND test_id ="'.$test_id.'"';
+                WHERE stdid="'.$stdid.'" AND paper_id ="'.$test_id.'" ';
                 $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
 
 
 
                 if($q1){
-                    // echo  1;
-                    return;
+                    return $row['attendance_id'];
                 }
             }
             else {
-                $sql = "insert into attendance(stdid,test_id,ip_address,time_in,session_status) 
+                $sql = "insert into attendance(stdid,paper_id,ip_address,time_in,session_status) 
                 values('$stdid','$test_id','$ip','$time_in',1)";
                 $q = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
 
                 if ($q) {
-                    // echo 1;
+                    return mysqli_insert_id(conn());
                 } else {
                     echo mysqli_error(conn());
                 }

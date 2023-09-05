@@ -53,7 +53,7 @@ if (!$_SESSION['adminId']) {
                 <div class="col-md-3">
                     <div class="box box-solid">
                         <?php
-                        echo $test ->getTestMenu($idm,'addStudent.php?id=');
+                        echo $test ->getExamMenu($idm,'addStudent.php?id=');
                         ?>
                     </div><!-- /. box -->
                 </div><!-- /.col -->

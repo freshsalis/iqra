@@ -2,15 +2,15 @@
 require_once 'Admin/asset/classes/db.php';
 date_default_timezone_set('Africa/lagos');
 session_start();
-	$testid=$_SESSION['testid'];
-	$stdid =$_SESSION['stdid'];
-	$instant =$_SESSION['instant'];
+	$testid=$_POST['paper'];
+	$stdid =$_POST['std'];
+	$instant =$_POST['insta'];
 
     $right_answer=0;
     $wrong_answer=0;
     $unanswered=0;
 
-    $sql="select * from question q,sub_question sub WHERE sub.test_id='".$testid."' and q.question_id=sub.question_id AND sub.stud_id='".$stdid."'";
+    $sql="select * from question q,sub_question sub WHERE sub.paper_id='".$testid."' and q.question_id=sub.question_id AND sub.stud_id='".$stdid."'";
     $response=mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
     $i=1;
     $num = mysqli_num_rows($response);
@@ -39,7 +39,7 @@ session_start();
 
     // if student already written d test update his scores
     $time = date('Y-m-d h:i:s');
-    $sel = 'SELECT * FROM testscore WHERE stdid="'.$stdid.'" AND testid="'.$testid.'"';
+    $sel = 'SELECT * FROM testscore WHERE stdid="'.$stdid.'" AND paper_id="'.$testid.'"';
     $check = mysqli_query(conn(), $sel) or die(mysqli_error(conn()));
     $r ='';
     if(mysqli_num_rows($check)>0){
@@ -58,7 +58,7 @@ session_start();
     }
     //else insert his scores into the db
     else {
-        $s = "INSERT INTO testscore(stdid,testid,right_answered,wrong_answer,unanswered,date_time)
+        $s = "INSERT INTO testscore(stdid,paper_id,right_answered,wrong_answer,unanswered,date_time)
                     values('" . $stdid . "','" . $testid . "','" . $right_answer . "',
                     '" . $wrong_answer . "','" . $unanswered . "','".$time."'
                     )";

@@ -49,38 +49,31 @@ echo $user -> getHeader();
     </section>
     <section class="content">
         <div class="row">
+            <div class="col-md-2">
+                    <div class="box box-solid">
+                        <?php
+                        echo $test ->getExamMenu($idm,'?id=');
+                        ?>
+
+                    </div><!-- /. box -->
+                    
+                </div>
             <div class="col-md-3">
-                <div class="box box-solid">
-                    <?php
-                    echo $test ->getTestMenu($idm,'addQuestion.php?id=');
-                    ?>
-
-                </div><!-- /. box -->
-                <div class="box box-solid">
-
-                    <div class="box-body no-padding">
-                        <ul class="nav nav-pills nav-stacked">
-                            <li><a href="#"><i class="glyphicon glyphicon-play"></i> Ongoing Tests <span class="label label-success pull-right">42</span></a></li>
-                            <li><a href="#"><i class="glyphicon glyphicon-pause"></i> Pending Test <span class="label label-success pull-right">62</span></a></li>
-                            <li><a href="#"><i class="glyphicon glyphicon-check"></i> Completed Tests <span class="label label-success pull-right">32</span></a></li>
-
-                        </ul>
-                    </div><!-- /.box-body -->
-                </div><!-- /. box -->
+                    <div class="box box-solid">
+                        <?php
+                        echo $test ->getPaperMenu($idm,'',$_GET['paper'] ?? "");
+                        ?>
+                    </div><!-- /. box -->
             </div><!-- /.col -->
-            <div class="col-md-9">
-
+            <div class="col-md-7">
                 <div class="box box-primary">
                     <!-- /.box-header -->
                     <?php
-                    echo $question ->getQuestionForm($idm);
+                    echo $question ->getQuestionForm($_GET['paper'] ?? "");
                     ?>
-
                 </div><!-- /. box -->
-
             </div>
-        </div><!-- /.col -->
-</div><!-- /.row -->
+    </div><!-- /.row -->
 </section><!-- /.content -->
 
 <!-- Main content -->

@@ -15,7 +15,7 @@
       
   }
 }
-function mode(idm, section_id) {
+function mode(idm, section_id="") {
   $(".alert1").hide();
   $(".error").hide();
   $("#update").show();
@@ -45,6 +45,50 @@ function mode(idm, section_id) {
       });
       break;
 
+    case "paper":
+        var data = "editPaper";
+        var id = "edit";
+        // alert(idm)
+        $.ajax({
+          type: "POST",
+          url: "asset/config/process.php",
+          data: { data: data, idm: idm, id: id },
+          success: function (msg) {
+            // alert(msg)
+            if (msg != "") {
+              $(document).find(".myclass").html("");
+              $(document).find(".myclass").html(msg);
+              $(".alert1").hide();
+              $("#error").hide();
+              edit(idm, "paper", section_id);
+              return false;
+            }
+          },
+        });
+        break;
+
+    case "exam":
+      var data = "editExam";
+      var id = "edit";
+      // alert(idm)
+      $.ajax({
+        type: "POST",
+        url: "asset/config/process.php",
+        data: { data: data, idm: idm, id: id },
+        success: function (msg) {
+          // alert(msg)
+          if (msg != "") {
+            $(document).find(".myclass").html("");
+            $(document).find(".myclass").html(msg);
+            $(".alert1").hide();
+            $("#error").hide();
+            edit(idm, "exam", section_id);
+            return false;
+          }
+        },
+      });
+      break;
+  
     case "student":
       $(document).find(".myclass").html("");
       var data = "editStudent";
@@ -70,10 +114,13 @@ function mode(idm, section_id) {
       var data = "editQuestion";
       var id = "edit";
 
+
+      var type = section_id
+
       $.ajax({
         type: "POST",
         url: "asset/config/process.php",
-        data: { data: data, idm: idm, id: id },
+        data: { data: data, idm: idm, id: id, type },
         success: function (msg) {
           if (msg != "") {
             $(document).find(".bx").html("");
@@ -238,6 +285,26 @@ function add() {
 
       break;
 
+      case "paper":
+      var dt = "addPaper";
+      // alert(dt)
+      $.ajax({
+        type: "POSt",
+        url: "confiq.php",
+        data: "&data=" + dt,
+        success: function (msg) {
+          $(document).find("#editbody").html("");
+          $(document).find("#editbody").html(msg);
+          $(".modal")
+            .find(".panel-heading")
+            .html("<h3><strong>Add test</strong></h3>");
+          $("form").find("#updateT").text("Add");
+          insert("test");
+        },
+      });
+
+      break;
+
     case "Class":
       var dt = "addClass";
 
@@ -333,6 +400,73 @@ function edit(idm, table, id) {
       });
       break;
 
+    case "exam":
+        $("#update").on("click", function (e) {
+          e.preventDefault();
+          var dt = "editExam";
+          var formData =
+            $("#studentForm").serialize() + "&dt=" + dt + "&idm=" + idm;
+          $.ajax({
+            type: "POST",
+            url: "asset/config/edit.php",
+            data: formData,
+            success: function (msg) {
+              // alert(msg)
+              if (msg == 1) {
+                $("#alert1")
+                  .html(
+                    '<div class="alert alert1"><b>Success!</b> Exam Edited Successfully</div>'
+                  )
+                  .css({ "background-color": "#F0F8FF", color: "green" });
+                // location.reload();
+                // $("#update").hide();
+              } else {
+                $("#alert1").html(
+                  '<div class="alert alert-danger alert1"><b>Error! Sorry the there is an error in your request' +
+                    msg +
+                    "</div>"
+                );
+              }
+            },
+          });
+        });
+        break;
+
+    case "paper":
+      $("#update").on("click", function (e) {
+        e.preventDefault();
+        var dt = "editPaper";
+        var formData =
+          $("#studentForm").serialize() + "&dt=" + dt + "&idm=" + idm;
+        $.ajax({
+          type: "POST",
+          url: "asset/config/edit.php",
+          data: formData,
+          success: function (msg) {
+            // alert(msg)
+            if (msg == 1) {
+              $("#alert1")
+                .html(
+                  '<div class="alert alert1"><b>Success!</b> Paper Edited Successfully</div>'
+                )
+                .css({ "background-color": "#F0F8FF", color: "green" });
+              setTimeout(
+                ' window.location = "?id=' + id + '"',
+                2000
+              );
+              $("#update").hide();
+            } else {
+              $("#alert1").html(
+                '<div class="alert alert-danger alert1"><b>Error! Sorry the there is an error in your request' +
+                  msg +
+                  "</div>"
+              );
+            }
+          },
+        });
+      });
+      break;
+
     //########################  student #############################
     case "student":
       $("#update").on("click", function (e) {
@@ -401,10 +535,7 @@ function edit(idm, table, id) {
                 .html(
                   '<div class="alert alert-success"><strong>SUCCESS!</strong> Question edited successfully</div>'
                 );
-              setTimeout(
-                ' window.location = "viewQuestion.php?id=' + id + '"',
-                2000
-              );
+              location.reload();
               //    $('#update').hide();
             } else {
               $(document)
@@ -524,6 +655,7 @@ function myDelete(idm, id) {
         });
       });
       break;
+    
     case "class":
       $("#ok").on("click", function () {
         $.ajax({
@@ -539,7 +671,46 @@ function myDelete(idm, id) {
       });
 
       break;
+    
+    case "paper":
+      $("#ok").on("click", function () {
+
+        $.ajax({
+          type: "POST",
+          url: "asset/config/delete.php",
+          data: "&idm=" + idm + "&table=" + table,
+          success: function (msg) {
+            if (msg == 1) {
+              // setTimeout(' window.location = ""', 500);
+              location.reload()
+            }
+          },
+        });
+      });
+
+      break;
+    
+    case "exam":
+     
+        $("#ok").on("click", function () {
+
+          $.ajax({
+            type: "POST",
+            url: "asset/config/delete.php",
+            data: "&idm=" + idm + "&table=" + table,
+            success: function (msg) {
+              if (msg == 1) {
+                // setTimeout(' window.location = ""', 500);
+                location.reload()
+              }
+            },
+          });
+        });
+
+        break;
+  
   }
+
 }
 
 function insert(table) {
@@ -943,7 +1114,7 @@ function login() {
     jQuery("#error").hide();
     var uname = $("#username").val();
     var password = $("#pwd").val();
-    var test = $("#test").val();
+    var test = $("#exam").val();
     $.ajax({
       type: "POST",
       url: "login_parse.php",
@@ -1081,22 +1252,42 @@ $(document).ready(function (e) {
       case "Question":
         // var form_data = new FormData();
         var form_data = new FormData();
-        var file_data = $("#file").prop("files")[0];
+       
         var question = CKEDITOR.instances.editor.getData();
         var test_id = $("#test_id").val();
-        var opt1 = CKEDITOR.instances.editor2.getData();
-        var opt2 = CKEDITOR.instances.editor3.getData();
-        var opt3 = CKEDITOR.instances.editor4.getData();
-        var opt4 = CKEDITOR.instances.editor5.getData();
-        var answer = $("#answer").val();
-        var section = $("#section").val();
-        form_data.append("file", file_data);
+        var type = $("#type_id").val();
         form_data.append("test_id", test_id);
-        form_data.append("opt1", opt1);
-        form_data.append("opt2", opt2);
-        form_data.append("opt3", opt3);
-        form_data.append("opt4", opt4);
-        form_data.append("answer", answer);
+
+        if (type ==1) {
+          var file_data = $("#file").prop("files")[0];
+          var opt1 = CKEDITOR.instances.editor2.getData();
+          var opt2 = CKEDITOR.instances.editor3.getData();
+          var opt3 = CKEDITOR.instances.editor4.getData();
+          var opt4 = CKEDITOR.instances.editor5.getData();
+          var answer = $("#answer").val();
+          var section = $("#section").val();
+          form_data.append("file", file_data);
+          form_data.append("opt1", opt1);
+          form_data.append("opt2", opt2);
+          form_data.append("opt3", opt3);
+          form_data.append("opt4", opt4);
+          form_data.append("answer", answer);
+          form_data.append("type", type);
+        }else{
+          var mark1 = $("#mark1").val()
+          var mark2 = $("#mark2").val()
+          var mark3 = $("#mark3").val()
+          var mark4 = $("#mark4").val()
+
+
+          form_data.append("mark1", mark1);
+          form_data.append("mark2", mark2);
+          form_data.append("mark3", mark3);
+          form_data.append("mark4", mark4);
+          form_data.append("type", type);
+
+        }
+       
         form_data.append("question1", question);
         form_data.append("data", data);
         form_data.append("id", id);
@@ -1120,7 +1311,7 @@ $(document).ready(function (e) {
                 .text("Question successfully added")
                 .css({ color: "green", padding: "10px", "font-weight": "bold" })
                 .fadeOut(10000);
-              $(".form-control").val("");
+              // $(".form-control").val("");
             } else if (msg == 4) {
               $(".msg")
                 .removeAttr("hidden")
@@ -1138,10 +1329,11 @@ $(document).ready(function (e) {
           },
         });
         break;
+
+        break;
       default: //end ajax
 
-      var formData =
-          $(".form-add").serialize() + "&id=" + id + "&data=" + data+"&instruction="+idata;
+      var formData = $(".form-add").serialize() + "&id=" + id + "&data=" + data+"&instruction="+idata;
       if (data == 'test') {
         var idata = CKEDITOR.instances.editor2.getData();
         var qps = $('#quest-section').val();
@@ -1166,10 +1358,7 @@ $(document).ready(function (e) {
           $(".form-add").serialize() + "&id=" + id + "&data=" + data+"&instruction="+idata;
       }
       
-
-        
-
-        // alert(idata)
+        console.log($(".form-add").serialize())
         $(".msg").attr("hidden");
 
         $.ajax({
@@ -1339,6 +1528,164 @@ $(document).ready(function (e) {
     } //outer switch
   });
 
+  // new codes --- Add paper -----
+  $(document).on("submit", "#paper-form", function (e) {
+    e.preventDefault();
+
+    var id = "add";
+    var data = "paper";
+
+    $(".msg")
+          .removeAttr("hidden")
+          .show()
+          .text("Please wait...")
+
+    var form_data = $(this).serialize() + "&id=" + id + "&data=" + data;
+    $.ajax({
+      type: "POST",
+      url: "asset/config/process.php",
+      cache: false,
+      data: form_data,
+      success: function (msg) {
+        // alert(msg)
+        if (msg == 1) {
+          $(".msg")
+            .removeAttr("hidden")
+            .show()
+            .text("Paper successfully added")
+            .css({
+              color: "green",
+              padding: "10px",
+              "font-weight": "bold",
+            });
+          location.reload();
+          // .fadeOut(6000);
+        } else if (msg == 0) {
+          $(".msg")
+            .removeAttr("hidden")
+            .show()
+            .text("Paper already exist")
+            .css({
+              color: "red",
+              padding: "10px",
+              "font-weight": "bold",
+            });
+          // .fadeOut(6000);
+        } else if (msg == 2) {
+          $(".msg")
+            .removeAttr("hidden")
+            .show()
+            .text("Unable to insert, try again")
+            .css({
+              color: "red",
+              padding: "10px",
+              "font-weight": "bold",
+            })
+            .fadeOut(6000);
+        } else if (msg == 3) {
+          $(".msg")
+            .removeAttr("hidden")
+            .show()
+            .text("Some fields cannot be empty")
+            .css({
+              color: "red",
+              padding: "10px",
+              "font-weight": "bold",
+            });
+          // .fadeOut(6000);
+        }
+    }})
+
+    $(".msg")
+            .removeAttr("hidden")
+            .show()
+            .text("Error, please contact system admin.")
+            .css({
+              color: "red",
+              padding: "10px",
+              "font-weight": "bold",
+            });
+      return false;
+  })
+
+  $(document).on("submit", "#exam-form", function (e) {
+    e.preventDefault();
+
+    $(".msg")
+          .removeAttr("hidden")
+          .show()
+          .text("Please wait...")
+    var id = "add";
+    var data = "exam";
+
+    var form_data = $(this).serialize() + "&id=" + id + "&data=" + data;
+    $.ajax({
+      type: "POST",
+      url: "asset/config/process.php",
+      cache: false,
+      data: form_data,
+      success: function (msg) {
+        // alert(msg)
+        if (msg == 1) {
+          $(".msg")
+            .removeAttr("hidden")
+            .show()
+            .text("Paper successfully added")
+            .css({
+              color: "green",
+              padding: "10px",
+              "font-weight": "bold",
+            });
+          location.reload();
+          // .fadeOut(6000);
+        } else if (msg == 0) {
+          $(".msg")
+            .removeAttr("hidden")
+            .show()
+            .text("Paper already exist")
+            .css({
+              color: "red",
+              padding: "10px",
+              "font-weight": "bold",
+            });
+          // .fadeOut(6000);
+        } else if (msg == 2) {
+          $(".msg")
+            .removeAttr("hidden")
+            .show()
+            .text("Unable to insert, try again")
+            .css({
+              color: "red",
+              padding: "10px",
+              "font-weight": "bold",
+            })
+            .fadeOut(6000);
+        } else if (msg == 3) {
+          $(".msg")
+            .removeAttr("hidden")
+            .show()
+            .text("Some fields cannot be empty")
+            .css({
+              color: "red",
+              padding: "10px",
+              "font-weight": "bold",
+            });
+          // .fadeOut(6000);
+        }
+    }})
+
+    $(".msg")
+            .removeAttr("hidden")
+            .show()
+            .text("Error, please contact system admin.")
+            .css({
+              color: "red",
+              padding: "10px",
+              "font-weight": "bold",
+            });
+      return false;
+  })
+
   /* ############################## upload button clicked ######################*/
   $(document).on("click", ".uploadStudents", function (e) {
     e.preventDefault();
@@ -1373,7 +1720,7 @@ $(document).ready(function (e) {
 
   $(document).on("click", ".upload", function (e) {
     e.preventDefault();
-    var test = $("#test_id").val();
+    var paper = $("#paper").val();
     var section = $("#section").val();
     var file_data = $("#uploadFile").prop("files")[0];
     var form_data = new FormData();
@@ -1381,7 +1728,7 @@ $(document).ready(function (e) {
     form_data.append("section", section);
     // alert(section)
     //append values into formData object
-    form_data.append("test", test);
+    form_data.append("paper", paper);
     $(".ul").hide();
     $(".spin").removeAttr("hidden").fadeIn(3000);
     $.ajax({
@@ -1484,7 +1831,7 @@ $(document).ready(function (e) {
 
   $(document).on("click", ".uploadWord", function (e) {
     e.preventDefault();
-    var test = $("#test_id").val();
+    var paper = $("#paper").val();
     var section = $("#section").val();
     var file_data = $("#uploadFile").prop("files")[0];
     var form_data = new FormData();
@@ -1493,7 +1840,7 @@ $(document).ready(function (e) {
     // $('.report').html('');
 
     //append values into formData object
-    form_data.append("test", test);
+    form_data.append("paper", paper);
     $(".ul").hide();
     $(".spin").removeAttr("hidden").fadeIn(3000);
     $.ajax({
@@ -1508,7 +1855,6 @@ $(document).ready(function (e) {
         e.preventDefault();
         // display response from the PHP script, if any
         $(".report").html(msg);
-        $(".form-control").val("");
 
         $("#example1").dataTable();
         $("#example2").dataTable({
@@ -1644,15 +1990,16 @@ $(document).ready(function (e) {
     var data = "all_del_question";
     var id = "all_del_question";
     var test = $(this).attr("test");
+    var type = $(this).data("paper-type")
 
     $(document).on("click", "#ok_delete_question", function (e) {
       let password = $("#del_confirm").val();
       if (password != null) {
-        $("#status").text("Deleting students please wait...");
+        $("#status").text("Deleting questions please wait...");
         $.ajax({
               url: "asset/config/process.php",
               type: "POST",
-              data: {"data" : data, "id": id,'test':test,'password':password},
+              data: {"data" : data, "id": id,'test':test,'password':password,type},
               cache: false,
               dataType: 'JSON',
               success: function (msg) {

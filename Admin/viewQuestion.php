@@ -48,21 +48,31 @@ if(isset($_GET['id']))
         </section>
         <section class="content">
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <div class="box box-solid">
                         <?php
-                        echo $test ->getTestMenu($idm,'viewQuestion.php?id=');
+                        echo $test ->getExamMenu($idm,'viewQuestion.php?id=');
                         ?>
 
                     </div><!-- /. box -->
                     
-                </div><!-- /.col -->
-                <div class="col-md-9">
+                </div>
+                <div class="col-md-2">
+                    <div class="box box-solid">
+                        <?php
+                        echo $test ->getPaperMenu($idm,'viewQuestion.php',$_GET['paper'] ?? "");
+                        ?>
+
+                    </div><!-- /. box -->
+                    
+                </div>
+                <!-- /.col -->
+                <div class="col-md-8">
 
                     <div class="box box-primary" style="width:100%;overflow:scroll">
                         <!-- /.box-header -->
                         <?php
-                        echo $question ->getQuestionTable($idm);
+                        echo $question ->getQuestionTable($_GET['paper'] ?? "");
                         ?>
 
                     </div><!-- /. box -->

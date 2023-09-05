@@ -57,22 +57,16 @@ session_start();
 <div class="col-md-3">
     <div class="box box-solid">
         <?php
-            echo $test ->getTestMenu($idm,'viewStudent.php?id=','student');
+            echo $test ->getExamMenu($idm,'viewStudent.php?id=','student');
         ?>
     </div><!-- /. box -->
 </div><!-- /.col -->
-<div class="col-md-2">
-    <div class="box box-solid">
-    <?php
-        echo $test ->getBatchMenu($idm , 'viewStudent.php',$batch);
-        ?>
-    </div><!-- /. box -->
-</div><!-- /.col -->
-<div class="col-md-7">
+
+<div class="col-md-9">
 <div class="box box-primary">
 <!-- /.box-header -->
     <?php
-        echo $student ->getStudentTable($idm,$batch);
+        echo $student ->getStudentTable($idm,'');
     ?>
 
 </div><!-- /. box -->

@@ -17,18 +17,14 @@ class Test{
 
     public function addTest()
     {
-        if ($_POST['testTitle'] !='' && $_POST['duration']!='' && $_POST['qstn-student']!='' && $_POST['reservationtime']!='' && $_POST['quest-section']!='') {
+        if ($_POST['testTitle'] !='' && $_POST['duration']!='' && $_POST['qstn-student']!=''  && $_POST['quest-section']!='') {
 
             $title = clean($_POST['testTitle']);
             $class = clean($_POST['class_id']);
             $duration = clean($_POST['duration'])*60;
             $no_question= clean($_POST['qstn-student']);
-            $date_range= clean($_POST['reservationtime'])."";
             $status= clean($_POST['status']);
             $instant= clean($_POST['iresult']);
-            $breaker = strpos($date_range,'-');
-            $start_time = clean(substr($date_range,0,$breaker));
-            $stop_time = clean(substr($date_range,$breaker+1));
             $score= $no_question;
             $sections= clean($_POST['component']);
             $per_section= clean($_POST['quest-section']);
@@ -46,10 +42,81 @@ class Test{
             //     echo 0; //test already exist
             // }
             // else {
-                $sql = "insert into test(name,time,start_time,stop_time,class_id,
+                $sql = "insert into test(name,time,class_id,
                 question_per_stud,status,instant_result,earnable_score,components,question_per_component,session,batches,weight,instruction) 
-                values('$title','$duration','$start_time','$stop_time',$class,
+                values('$title','$duration','$class',
                 '$no_question','$status','$instant','$score','$sections','$per_section','$session','$batches','$weight', '$instruction')";
+                $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+
+                if ($q1) {
+                    echo 1;
+                } else {
+                    echo mysqli_error(conn());
+                }
+            // }
+            echo mysqli_error(conn());
+
+        }else
+            echo 3; //some fields required
+    }
+
+    public function addExam()
+    {
+        if ($_POST['testTitle'] !=''  && $_POST['session']!='') {
+
+            $title = clean($_POST['testTitle']);
+            
+            $status= clean($_POST['status']);
+            $instant= clean($_POST['iresult']);
+            
+            $session= clean($_POST['session']);
+            $instruction= clean($_POST['instruction']);
+
+            $sql = "insert into exam(name,status,instant_result,session,instruction) 
+            values('$title','$status','$instant','$session', '$instruction')";
+            $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+
+            if ($q1) {
+                echo 1;
+            } else {
+                echo mysqli_error(conn());
+            }
+            // }
+            echo mysqli_error(conn());
+
+        }else
+            echo 3; //some fields required
+    }
+
+    public function addPaper()
+    {
+        if ($_POST['testTitle'] !='' && $_POST['duration']!='' && $_POST['qstn-student']!='') {
+
+            $title = clean($_POST['testTitle']);
+            $exam = clean($_POST['exam']);
+            $duration = clean($_POST['duration'])*60;
+            $no_question= clean($_POST['qstn-student']);
+            $status= clean($_POST['status']);
+            $instant= clean($_POST['iresult']);
+            $score= $no_question;
+            $batches= clean($_POST['batches']);
+            $weight= clean($_POST['weight']);
+            $instruction= clean($_POST['instruction']);
+            $type= clean($_POST['type']);
+
+
+
+            // $s1 = 'select * from test WHERE name="' . $title . '"';
+            // $q1 = mysqli_query(conn(), $s1) or die(mysqli_error(conn()));
+
+            // if (mysqli_num_rows($q1) > 0) {
+            //     echo 0; //test already exist
+            // }
+            // else {
+                $sql = "insert into papers(name,time,exam_id,
+                question_per_stud,status,instant_result,earnable_score,batches,weight,instruction,paper_type_id) 
+                values('$title','$duration','$exam',
+                '$no_question','$status','$instant','$score','$batches','$weight', '$instruction','$type')";
                 $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
 
                 if ($q1) {
@@ -182,6 +249,91 @@ class Test{
 
     }
 
+    public function getExamTable()
+    {
+        $class_name ='';
+        $r = '';
+        $r .= '
+
+
+            <div class="box-body">
+            <table id="example1" style="width:100%;" class="table table-bordered table-striped table-responsive">
+            <thead>
+                <tr>
+                    <th>SN</th>
+                    <th>Exam Name</th>
+                    <th>Session</th>
+                    <th>Status</th>
+                    <th>Instructions</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+                </thead>
+                <tbody>';
+        $sql = "SELECT * FROM exam ORDER BY name";
+        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+        $sn = 0;
+
+        if (mysqli_num_rows($q1) > 0) {
+            while ($row = mysqli_fetch_assoc($q1)) {
+                $sn++;
+                $id = $row['exam_id'];
+                $name = $row['name'];
+                $session = $row['session'];
+                $status = $row['status'];
+                $instruction = $row['instruction'];
+
+                $r .= '<tr>
+						<td>' . $sn . '</td>
+						<td>' . $name . '</td>
+						<td>' . $session. ' </td>
+						<td>' . $status. ' </td>
+						<td>' . $instruction . ' </td>
+						<td>
+							<a title="edit" href="#" rel="exam" class="btn btn-primary btn-sm edit" data-toggle="modal" data-target="#addstudent" data-whatever="@mdo" onclick="mode(' . $id .');">
+							    <span class="glyphicon glyphicon-pencil"></span>
+							 </a>
+                        </td>
+                        <td>
+
+							<a type="button" title="delete" class="btn btn-danger btn-sm delete"  rel="exam" data-toggle="modal" data-target="#delete" data-whatever="@mdo" onclick="myDelete(' . $id . ');"><span class="glyphicon glyphicon-trash"></span>
+							</a>
+
+						</td>
+					</tr>
+
+
+
+				';
+            }
+            echo '<div class="box-header with-border">
+                        <h3 class="box-title">'.$class_name.' Exams</h3>
+                      </div>';
+        }
+        else {
+            
+        }
+        $r .= '
+                </tbody>
+                <tfoot>
+                <tr>
+                <th>SN</th>
+                    <th>Exam Name</th>
+                    <th>Session</th>
+                    <th>Status</th>
+                    <th>Instructions</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+                </tfoot>
+            </table>
+            </div>
+        ';
+
+        return $r;
+
+    }
+
     public function getTokenTable($test_id)
     {
         $student = new Student();
@@ -243,6 +395,108 @@ class Test{
 
     }
 
+    public function getPapersTable($exam_id)
+    {
+        $student = new Student();
+        $class_name ='';
+
+        $r = '
+            <div class="box-body" style="width:100%;overflow-x:auto;"><br><br>
+            <button data-toggle="modal" data-target="#del_batch_stud_modal" data-whatever="@mdo" test='.$exam_id.' id="new_paper" class="btn btn-md btn-primary pull-right">Create New Paper <span class="glyphicon glyphicon-delete"></span></button>
+            <br><br/>
+            <table id="example1" width="100%" class="table table-bordered table-striped table-responsive">
+                <thead>
+                <tr>
+                <th>SN</th>
+                <th>Paper Name</th>
+                <th>Duration</th>
+                <th>Questions/Student</th>
+                <th>Weight</th>
+                <th>Session</th>
+                <th>Batches</th>
+                <th>Status</th>
+                <th>Paper Type</th>
+                <th>Edit</th>
+                <th>Delete</th>
+                </tr>
+                </thead>
+                <tbody>';
+            $sql = "SELECT p.*,e.name as exam_name,e.session,type_name FROM papers p INNER JOIN exam e ON  p.exam_id=e.exam_id
+                    INNER JOIN paper_type t ON t.paper_type_id=p.paper_type_id
+                     WHERE p.exam_id='".$exam_id."' ";
+        
+        
+        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+        $sn = 0;
+
+        if (mysqli_num_rows($q1) > 0) {
+            while ($row = mysqli_fetch_assoc($q1)) {
+                $sn++;
+                $id = $row['paper_id'];
+                $name = $row['name'];
+                $duration = $row['time']/60;
+                $qstn = $row['question_per_stud'];
+                $session = $row['session'];
+                $type = $row['type_name'];
+                $status = $row['status'];
+                $batches = $row['batches'];
+                $weight = $row['weight'];
+
+                $r .= '<tr>
+						<td>' . $sn . '</td>
+						<td>' . $name . '</td>
+						<td>' . $duration . ' minutes </td>
+						<td>' . $qstn . ' </td>
+						<td>' . $weight . ' </td>
+						<td>' . $session. ' </td>
+						<td>' . $batches. ' </td>
+						<td>' . $status . ' </td>
+						<td>' . $type . ' </td>
+						<td>
+							<a title="edit" href="javascript:void(0)" rel="paper" class="btn btn-primary btn-sm edit" data-toggle="modal" data-target="#addstudent" data-whatever="@mdo" onclick="mode(' . $id . ');">
+							    <span class="glyphicon glyphicon-pencil"></span>
+							 </a>
+                        </td>
+                        <td>
+
+							<a type="button" title="delete" class="btn btn-danger btn-sm delete"  rel="paper" data-toggle="modal" data-target="#delete" data-whatever="@mdo" onclick="myDelete(' . $id . ');"><span class="glyphicon glyphicon-trash"></span>
+							</a>
+
+						</td>
+					</tr>
+
+
+
+				';
+         }
+        }
+       
+        $r .= '
+                </tbody>
+                <tfoot>
+                <tr>
+                <th>SN</th>
+                <th>Paper Name</th>
+                <th>Duration</th>
+                <th>Questions/Student</th>
+                <th>Weight</th>
+                <th>Session</th>
+                <th>Batches</th>
+                <th>Status</th>
+                <th>Paper Type</th>
+                <th>Edit</th>
+                <th>Delete</th>
+                </tr>
+                </tfoot>
+            </table>
+            </div>
+        ';
+
+        return $r;
+
+    }
+
+
     public function getEditTest(){
         $idm = $_POST['idm'];
         $sql = 'select * from test WHERE test_id="'.$idm.'" limit 1';
@@ -263,6 +517,141 @@ class Test{
 
         return $this -> getTestModal($title,$duration,$qstn,$class_id,$start.'-'.$stop,$status,$instant,$sections,$sections_quest,$batches,$weight);
 
+    }
+
+    public function getEditExam(){
+        $idm = $_POST['idm'];
+        $sql = 'select * from exam WHERE exam_id="'.$idm.'" limit 1';
+        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+        $row = mysqli_fetch_assoc($q1);
+        $title = $row['name'];
+        $status = $row['status'];
+        $instant = $row['instant_result'];
+        $session = $row['session'];
+        $instruction = $row['instruction'];
+
+        return $this -> getExamModal($title,$status,$instant,$session,$instruction);
+
+    }
+
+    public function getEditPaper(){
+        $idm = $_POST['idm'];
+        $sql = 'select * from papers WHERE paper_id="'.$idm.'" limit 1';
+        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+        $row = mysqli_fetch_assoc($q1);
+        $title = $row['name'];
+        $duration = $row['time']/60;
+        $exam_id = $row['exam_id'];
+        $qstn = $row['question_per_stud'];
+        $status = $row['status'];
+        $instant = $row['instant_result'];
+        $batches = $row['batches'];
+        $weight = $row['weight'];
+        $type = $row['paper_type_id'];
+
+        return $this -> getPaperModal($title,$duration,$qstn,$exam_id,$status,$instant,$batches,$weight,$type);
+
+    }
+
+    function getPaperModal($title='',$duration='',$qstn='',$exam_id,$status,$instant,$batches,$weight,$type){
+        $this->class = new _Class();
+        $r ='<div class="panel panel-success cbtlogin" >
+                            <div class="panel-body">
+                               <div id="error"></div>
+                                <form class="form-horizontal stdform" method="post" name="form1" id="studentForm">
+                                    <div class="box-body">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Paper Name</span>
+                                                <input type="text" value="'.$title.'" name="testTitle" id="testTitle" class="form-control" placeholder="">
+                                            </div>
+                                            <br/>
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Duration</span>
+                                                <input type="number" value="'.$duration.'" name="duration" id="duration" class="form-control" placeholder="In minutes">
+                                            </div><br/>
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Question per Student</span>
+                                                <input type="number" value="'.$qstn.'"  name="qstn-student" id="qstn-student" class="form-control" placeholder="No. of question per student">
+                                            </div><br>
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Weight (marks per right answer)</span>
+                                                <input type="number" value="'.$weight.'"  name="weight" id="weight" class="form-control" placeholder="No. of question per student">
+                                            </div><br>   
+                                            <div class="input-group">
+                                                <span class="input-group-addon">No. of bactches</span>
+                                                <input type="number" default="1" min="1" value="'.$batches.'"  name="batches" id="baches" class="form-control" placeholder="50,30,30">
+                                            </div><br>
+                                                                                        
+                                            <div class="input-group">
+                                                            <span class="input-group-addon">Exam</span>
+
+                                                ';
+                                                    $r.= $this->getExamCombo($exam_id);
+                                                    $r.='
+                                                </select>
+                                            </div><br/>
+
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Paper Type</span>
+
+                                                ';
+                                                $r.= $this->getPaperTypeCombo($type);
+                                                $r.='
+                                                </select>
+                                            </div><br/>
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Status</span>
+                                                <select  class="form-control" name="status" id="status">';
+                                                if ($status =='Pending') {
+                                                    $r .='<option >Active</option>
+                                                    <option selected>Pending</option>
+                                                    <option>Completed</option>';
+                                                }elseif ($status == 'Completed') {
+                                                    $r .='<option>Active</option>
+                                                    <option >Pending</option>
+                                                    <option selected>Completed</option>';
+                                                }
+                                                elseif ($status == 'Active') {
+                                                    $r .='<option selected>Active</option>
+                                                    <option >Pending</option>
+                                                    <option >Completed</option>';
+                                                }else {
+                                                    $r .='<option>Active</option>
+                                                    <option>Pending</option>
+                                                    <option>Completed</option>';
+                                                }
+                                                $r .='
+                                                    
+                                                </select>
+                                            </div>
+                                            <br/>
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Instant result</span>
+                                                <select  class="form-control" name="iresult" id="iresult">
+                                                    ';
+                                                    if ($instant ==0) {
+                                                        $r .='<option value="0" selected>No</option>
+                                                        <option value="1">Yes</option>';
+                                                    }elseif ($instant == 1) {
+                                                        $r .='<option value="0" >No</option>
+                                                        <option value="1" selected>Yes</option>';
+                                                    }
+                                                    $r .='
+                                                </select>
+                                            </div>
+                                            <br/>
+                                        </div><!-- /input-group -->
+
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+            </div>
+            </div>
+            </div>
+            ';
+        return $r;
     }
 
     function getTestModal($title='',$duration='',$qstn='',$class_id,$date='',$status,$instant,$sections,$sections_quest,$batches,$weight){
@@ -370,6 +759,168 @@ class Test{
         return $r;
     }
 
+    function getExamModal($title='',$status,$instant,$session,$instruction){
+        $this->class = new _Class();
+        $r ='<div class="panel panel-success cbtlogin" >
+                            <div class="panel-body">
+                               <div id="error"></div>
+                                <form class="form-horizontal stdform" method="post" name="form1" id="studentForm">
+                                    <div class="box-body">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Exam Name</span>
+                                                <input type="text" value="'.$title.'" name="testTitle" id="testTitle" class="form-control" placeholder="">
+                                            </div>
+                                            <br/>
+
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Academic Session</span>
+                                        <input type="text" value="'.$session.'" name="session" id="session" class="form-control" placeholder="">
+                                    </div>
+                                    <br/>
+                                           
+                                
+                                <div class="input-group">
+                                                <span class="input-group-addon">Status</span>
+                                                <select  class="form-control" name="status" id="status">';
+                                                if ($status =='Pending') {
+                                                    $r .='<option >Active</option>
+                                                    <option selected>Pending</option>
+                                                    <option>Completed</option>';
+                                                }elseif ($status == 'Completed') {
+                                                    $r .='<option>Active</option>
+                                                    <option >Pending</option>
+                                                    <option selected>Completed</option>';
+                                                }
+                                                elseif ($status == 'Active') {
+                                                    $r .='<option selected>Active</option>
+                                                    <option >Pending</option>
+                                                    <option >Completed</option>';
+                                                }else {
+                                                    $r .='<option>Active</option>
+                                                    <option>Pending</option>
+                                                    <option>Completed</option>';
+                                                }
+                                                $r .='
+                                                    
+                                                </select>
+                                            </div>
+                                            <br/>
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Instant result</span>
+                                                <select  class="form-control" name="iresult" id="iresult">
+                                                    ';
+                                                    if ($instant ==0) {
+                                                        $r .='<option value="0" selected>No</option>
+                                                        <option value="1">Yes</option>';
+                                                    }elseif ($instant == 1) {
+                                                        $r .='<option value="0" >No</option>
+                                                        <option value="1" selected>Yes</option>';
+                                                    }
+                                                    $r .='
+                                                </select>
+                                            </div>
+                                            <br/>
+                                            <div class="input-group">
+                                            <b>Exam Instructions: </b>
+                                            <textarea class="col-md-12 form-control" name="instruction" cols="60" id="editor2" name="">'.$instruction.'</textarea>
+                                        </div>
+                                        <br>
+                                        </div><!-- /input-group -->
+
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+            </div>
+            </div>
+            </div>
+            ';
+        return $r;
+    }
+
+    function getExamCombo($default = '')
+    {
+        $r = '<select name="exam" id="exam" class="col-md-12 form-control">';
+        $sql = "SELECT * FROM exam ORDER BY name";
+        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+        $sn = 0;
+
+        if (mysqli_num_rows($q1) > 0) {
+            while ($row = mysqli_fetch_assoc($q1)) {
+                $sn++;
+                $id = $row['exam_id'];
+                $exam = $row['name'];
+
+                //check for the selected option
+                if ($default != '' && $default == $id) {
+                    $option = '<option value=' . $id . ' selected>' . $exam . '</option>';
+                    $r .= $option;
+                } else {
+                    $option = '<option value=' . $id . '>' . $exam . '</option>';
+                    $r .= $option;
+                }
+            }
+            return $r;
+        }
+
+
+    }
+
+    function getPaperCombo($exam_id,$default = '')
+    {
+        $r = '<select name="paper" id="paper" class="col-md-12 form-control">';
+        $sql = "SELECT * FROM papers WHERE exam_id='".$exam_id."' ORDER BY name";
+        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+        $sn = 0;
+
+        if (mysqli_num_rows($q1) > 0) {
+            while ($row = mysqli_fetch_assoc($q1)) {
+                $sn++;
+                $id = $row['paper_id'];
+                $name = $row['name'];
+
+                //check for the selected option
+                if ($default != '' && $default == $id) {
+                    $option = '<option value=' . $id . ' selected>' . $name . '</option>';
+                    $r .= $option;
+                } else {
+                    $option = '<option value=' . $id . '>' . $name . '</option>';
+                    $r .= $option;
+                }
+            }
+            return $r;
+        }
+
+
+    }
+
+    function getPaperTypeCombo($default = '')
+    {
+        $r = '<select name="type" id="type" class="col-md-12 form-control">';
+        $sql = "SELECT * FROM paper_type ORDER BY type_name";
+        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+        $sn = 0;
+
+        if (mysqli_num_rows($q1) > 0) {
+            while ($row = mysqli_fetch_assoc($q1)) {
+                $sn++;
+                $id = $row['paper_type_id'];
+                $name = $row['type_name'];
+
+                //check for the selected option
+                if ($default != '' && $default == $id) {
+                    $option = '<option value=' . $id . ' selected>' . $name . '</option>';
+                    $r .= $option;
+                } else {
+                    $option = '<option value=' . $id . '>' . $name . '</option>';
+                    $r .= $option;
+                }
+            }
+            return $r;
+        }
+    }
+
     public function  editTest(){
         $title = clean($_POST['testTitle']);
         $class = clean($_POST['sclass']);
@@ -414,8 +965,87 @@ class Test{
 
     }
 
+    public function  editExam(){
+        $title = clean($_POST['testTitle']);
+       
+        $status= clean($_POST['status']);
+        $instant= clean($_POST['iresult']);
+        $session= clean($_POST['session']);
+        $instruction= clean($_POST['instruction']);
+
+
+        $idm = $_POST['idm'];
+
+        $sql = 'UPDATE exam SET name="'.$title.'",
+                status="'.$status.'",
+                instant_result="'.$instant.'",
+                session="'.$session.'",
+                instruction="'.$instruction.'"
+                WHERE exam_id="'.$idm.'" ';
+        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+
+        if($q1){
+            echo  1;
+        }else echo mysqli_error(conn());
+
+    }
+
+    public function  editPaper(){
+        $title = clean($_POST['testTitle']);
+        $exam = clean($_POST['exam']);
+        $duration = clean($_POST['duration'])*60;
+        $no_question= clean($_POST['qstn-student']);
+        $status= clean($_POST['status']);
+        $instant= clean($_POST['iresult']);
+        $score= $no_question;
+        $batches= clean($_POST['batches']);
+        $weight= clean($_POST['weight']);
+        $type= clean($_POST['type']);
+
+
+        $idm = $_POST['idm'];
+
+        $sql = 'UPDATE papers SET name="'.$title.'",
+                time="'.$duration.'",
+                exam_id="'.$exam.'",
+                question_per_stud="'.$no_question.'",
+                status="'.$status.'",
+                instant_result="'.$instant.'",
+                earnable_score="'.$score.'",
+                weight="'.$weight.'",
+                batches="'.$batches.'",
+                paper_type_id="'.$type.'"
+                WHERE paper_id="'.$idm.'" ';
+        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+
+
+
+        if($q1){
+            echo  1;
+        }else echo mysqli_error(conn());
+
+    }
+
     public function delete($idm){
         $sql = 'delete from test where test_id="'.$idm.'"' ;
+        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+
+        if($q1){
+            echo 1;
+        }else echo mysqli_error(conn());
+    }
+
+    public function deletePaper($idm){
+        $sql = 'delete from papers where paper_id="'.$idm.'"' ;
+        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+
+        if($q1){
+            echo 1;
+        }else echo mysqli_error(conn());
+    }
+
+    public function deleteExam($idm){
+        $sql = 'delete from exam where exam_id="'.$idm.'"' ;
         $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
 
         if($q1){
@@ -449,15 +1079,7 @@ class Test{
                                                 <span class="input-group-addon">Duration</span>
                                                 <input type="number" name="duration" id="duration" class="form-control" placeholder="In minutes">
                                             </div><br/>
-                                            <div class="form-group">
-                                                <label>Date and time range:</label>
-                                                <div class="input-group">
-                                                    <div class="input-group-addon">
-                                                        <i class="fa fa-clock-o"></i>
-                                                    </div>
-                                                    <input type="text" name="reservationtime"  class="form-control pull-right" id="reservationtime"/>
-                                                </div><!-- /.input group -->
-                                            </div><!-- /.form group -->
+                                            
                                             <div class="input-group">
                                                 <span class="input-group-addon">Academic Session:</span>
                                                 <input type="text"  name="session" id="session" class="form-control" placeholder="">
@@ -531,6 +1153,92 @@ class Test{
         return $r;
     }
 
+    public function getPaperForm(){
+        
+                $r ='
+                        <div class="box-body">
+                            <div class="box box-info">
+                                <div class="box-body">
+                                    <form class="paper-form" role="form" id="paper-form">
+                                        <div class="box-body">
+                                        <div class="input-group">
+                                        <span class="input-group-addon">Exam</span>
+                                                                        ';
+                                            $r.= $this->getExamCombo();
+                                            $r.='
+                                            </select>
+                                            </div><br/>
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Paper Name (Course code) </span>
+                                                <input type="text" name="testTitle" id="testTitle" class="form-control" placeholder="">
+                                            </div>
+                                            <br/>
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Paper Type</span>
+
+                                                ';
+                                                $r.= $this->getPaperTypeCombo();
+                                                $r.='
+                                                </select>
+                                            </div><br/>
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Duration</span>
+                                                <input type="number" name="duration" id="duration" class="form-control" placeholder="In minutes">
+                                            </div><br/>
+                                            
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Question per Student</span>
+                                                <input type="number"  name="qstn-student" id="qstn-student" class="form-control" placeholder="No. of question per student">
+                                            </div><br>
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Weight (Marks per right answer)</span>
+                                                <input type="number" value="1"  name="weight" id="weight" class="form-control" placeholder="No. of question per student">
+                                            </div><br>
+                                           
+                                            <div class="input-group">
+                                                <span class="input-group-addon">No. of bactches</span>
+                                                <input type="number" default="1" min="1" value="1"  name="batches" id="baches" class="form-control" placeholder="50,30,30">
+                                            </div><br>
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Status</span>
+                                                <select  class="form-control" name="status" id="status">
+                                                    <option>Pending</option>
+                                                    <option>Active</option>
+                                                </select>
+                                            </div>
+                                            <br/>
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Instant result</span>
+                                                <select  class="form-control" name="iresult" id="iresult">
+                                                    <option value="0">No</option>
+                                                    <option value="1">Yes</option>
+                                                </select>
+                                            </div>
+                                            <br>
+                                            
+                                            <div class="input-group">
+                                                <b>Exam Instructions: </b>
+                                                <textarea class="col-md-12 form-control" name="instruction" cols="60" id="editor2" name=""></textarea>
+                                            </div>
+                                            <br>
+                                        </div><!-- /input-group -->
+
+                                                    <br/>
+                                                    <input type="submit" id="submit-paper" class="btn btn-primary form-control submit-paper" rel="paper" value="Submit" placeholder="">
+                                </form>
+                                </div><!-- /input-group -->
+                                <br/>
+                                <div class=" msg" id="msg"></div>
+
+                            </div><!-- /.box-body -->
+                        </div><!-- /.box -->
+
+                ';
+
+           
+        return $r;
+    }
+
     public function getTestMenu($idm = '', $url)
     {
         $r = '
@@ -572,6 +1280,164 @@ class Test{
 
         ';
         return $r;
+    }
+
+    public function getExamMenu($idm = '', $url)
+    {
+        $r = '
+            <div class="box box-solid" style="height: 500px;;overflow:scroll;">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Exams</h3>
+                </div>
+                <div class="box-body no-padding">
+                    <ul class="nav nav-pills nav-stacked">
+                    ';
+        $sql = "SELECT * FROM exam  ORDER BY exam_id DESC limit 50";
+        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+        $sn = 0;
+
+        if (mysqli_num_rows($q1) > 0) {
+            while ($row = mysqli_fetch_assoc($q1)) {
+                $sn++;
+                $id = $row['exam_id'];
+                $name = $row['name'];
+                $session = $row['session'];
+
+                if ($idm == $id) {
+                    $r .= '
+                        <li class="active"><a href="' . $url . $id . '" id="' . $id . '"><i class="glyphicon glyphicon-th-list"></i> ' . $name . ' - '.$session.'<span class="label label-primary pull-right"><span class="glyphicon glyphicon-chevron-down"></span></span></a></li>
+                       ';
+                } else {
+                    $r .= '
+                        <li class=""><a href="' . $url . $id . '" id="' . $id . '"><i class="glyphicon glyphicon-th-list"></i> ' . $name . ' - '.$session.' <span class="label label-primary pull-right"><span class="glyphicon glyphicon-chevron-right"></span></span></a></li>
+                       ';
+                }
+
+            }
+        } else
+            $r .= ' No tests found';
+        $r .= '
+                    </ul>
+                </div><!-- /.box-body -->
+        </div><!-- /. box -->
+
+        ';
+        return $r;
+    }
+    public function getPaperMenu($idm = '', $url,$paper)
+    {
+        $r = '
+            <div class="box box-solid" style="height: 500px;;overflow:scroll;">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Papers</h3>
+                </div>
+                <div class="box-body no-padding">
+                    <ul class="nav nav-pills nav-stacked">
+                    ';
+        $sql = "SELECT p.*,e.name as examName,e.session,t.* FROM papers p 
+            INNER JOIN exam e ON e.exam_id=p.exam_id  
+            INNER JOIN paper_type t ON t.paper_type_id=p.paper_type_id
+            WHERE p.exam_id='".$idm."'
+            ORDER BY exam_id DESC limit 50";
+        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+        $sn = 0;
+
+        if (mysqli_num_rows($q1) > 0) {
+            while ($row = mysqli_fetch_assoc($q1)) {
+                $sn++;
+                $id = $row['paper_id'];
+                $name = $row['name'];
+                $type = $row['type_name'];
+
+                if ($paper == $id) {
+                    $r .= '
+                        <li class="active">
+                        <a href="' . $url. '?id=' . $idm . '&paper='.$id.' ">
+
+                            <i class="glyphicon glyphicon-th-list"></i> ' . $name . ' ('.$type.')<span class="label label-primary pull-right"><span class="glyphicon glyphicon-chevron-down"></span></span></a></li>
+                       ';
+                } else {
+                    $r .= '
+                        <li class="">
+                            <a href="' . $url. '?id=' . $idm . '&paper='.$id.' ">
+                            <i class="glyphicon glyphicon-th-list"></i> ' . $name . ' ('.$type.')<span class="label label-primary pull-right"><span class="glyphicon glyphicon-chevron-right"></span></span></a></li>
+                       ';
+                }
+
+            }
+        } else
+            $r .= ' No papers found';
+        $r .= '
+                    </ul>
+                </div><!-- /.box-body -->
+        </div><!-- /. box -->
+
+        ';
+        return $r;
+    }
+
+    public function getStartPaperMenu($idm = '', $url,$paper,$student_id)
+    {
+        $r = '
+            <div class="box box-solid" style="max-height: 500px;;overflow:scroll;">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Papers</h3>
+                </div>
+                <div class="box-body no-padding">
+                    <ul class="nav nav-pills nav-stacked">
+                    ';
+        $sql = "SELECT p.*,e.name as examName,e.session,type_name FROM papers p 
+            INNER JOIN exam e ON e.exam_id=p.exam_id  
+            INNER JOIN paper_type t ON t.paper_type_id=p.paper_type_id
+            WHERE p.exam_id='".$idm."' AND t.paper_type_id <>2 AND p.status='active'
+            ORDER BY exam_id DESC limit 50";
+        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+        $sn = 0;
+
+        if (mysqli_num_rows($q1) > 0) {
+            while ($row = mysqli_fetch_assoc($q1)) {
+                $sn++;
+                $id = $row['paper_id'];
+                $name = $row['name'];
+                $type = $row['type_name'];
+                $isTaken = $this->isPaperTaken($id,$student_id);
+                if ($isTaken >0) {
+                    $r .= '
+                        <li class="active">
+                        <h4>
+                            <i class="glyphicon glyphicon-th-list"></i> 
+                            ' . $name . ' ('.$type.')<span class="label label-danger pull-right"> Already Taken 
+                            <span class="glyphicon glyphicon-check"></span></span>
+                        </h4></li>
+                       ';
+                } else {
+                    $r .= '
+                        <li class="">
+                           <h4> <a href="' . $url. '?p='.sha1($id).' ">
+                            <i class="glyphicon glyphicon-th-list"></i> ' . $name . ' ('.$type.')<span class="label label-primary pull-right">Start Exam <span class="glyphicon glyphicon-chevron-right"></span></span></h4></a></li>
+                       ';
+                }
+
+            }
+        } else
+            $r .= ' No papers found';
+        $r .= '
+                    </ul>
+                </div><!-- /.box-body -->
+        </div><!-- /. box -->
+
+        ';
+        return $r;
+    }
+
+    public function isPaperTaken($paper_id,$student_id)  {
+        $sql_taken = "select * FROM testscore WHERE paper_id='".$paper_id."'  AND stdid='".$student_id."'";
+            $query_taken = mysqli_query(conn(), $sql_taken) or die(mysqli_error(conn()));
+            return $numrow_taken=mysqli_num_rows($query_taken);
+
+            
+
+            
     }
     public function getBatchMenu($idm='' , $url,$batch=0)
     {
@@ -631,6 +1497,7 @@ class Test{
         ';
         return $r;
     }
+
     public function getActiveTestMenu($idm = '', $url)
     {
         $r = '
@@ -720,8 +1587,7 @@ class Test{
         $count =0;
 
 
-        $sql = "SELECT COUNT(test_id) AS cc FROM test t,class c WHERE t.status='".$status."' And
-                c.class_id=t.class_id  ";
+        $sql = "SELECT COUNT(paper_id) AS cc FROM papers t WHERE t.status='".$status."'  ";
         $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
         $sn = 0;
 
@@ -746,6 +1612,31 @@ class Test{
             while($rs=mysqli_fetch_array($sql)){
                 $title = $rs['name'];
                 $id = $rs['test_id'];
+
+                if($default !='' && $default ==$id) {
+                    $option = '<option value=' . $id . ' selected>' . $title . '</option>';
+                    $select .= $option;
+                }else{
+                    $option = '<option value=' . $id . '>' . $title . '</option>';
+                    $select .= $option;
+                }
+            }
+        }
+        $select.='</select>';
+        //check for the selected option
+        return $select;
+
+    }
+
+    function getActiveExamCombo($default=''){
+        $s="SELECT * FROM exam where status='active'";
+        $sql = mysqli_query(conn(), $s) or die(mysqli_error(conn()));
+        $select= '<select name="exam" id="exam" class="col-lg-12 form-control">';
+
+        if(mysqli_num_rows($sql) >0){
+            while($rs=mysqli_fetch_array($sql)){
+                $title = $rs['name'];
+                $id = $rs['exam_id'];
 
                 if($default !='' && $default ==$id) {
                     $option = '<option value=' . $id . ' selected>' . $title . '</option>';

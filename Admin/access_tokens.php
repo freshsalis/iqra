@@ -57,7 +57,7 @@ session_start();
 <div class="col-md-3">
     <div class="box box-solid">
         <?php
-            echo $test ->getTestMenu($idm,'access_tokens.php?id=','token');
+            echo $test ->getExamMenu($idm,'access_tokens.php?id=','token');
         ?>
     </div><!-- /. box -->
 </div><!-- /.col -->

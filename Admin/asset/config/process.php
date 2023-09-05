@@ -42,6 +42,12 @@ if($converted < strtotime('6/6/2025')){
                 case "Question":
                     $question ->addQuestion();
                     break;
+                case "paper":
+                    $test ->addPaper();
+                    break;
+                case "exam":
+                    $test ->addExam();
+                    break;
             }
             break;
         /*####################### edit segment ####################################*/
@@ -59,6 +65,12 @@ if($converted < strtotime('6/6/2025')){
                     break;
                 case "editQuestion":
                     echo $question ->getEditQuestion();
+                    break;
+                case "editPaper":
+                    echo $test ->getEditPaper();
+                    break;
+                case "editExam":
+                    echo $test ->getEditExam();
                     break;
             }
 
@@ -92,8 +104,9 @@ if($converted < strtotime('6/6/2025')){
         case "all_del_question":
             $test = clean($_POST['test']);
             $password = clean($_POST['password']);
+            $type = clean($_POST['type']);
             $user = $_SESSION['aUser'];
-            $response = $question->deleteAllQuestions($user,$password,$test);
+            $response = $question->deleteAllQuestions($user,$password,$test,$type);
             if ($response == 1) {
                 echo json_encode(array('response_status' => 'success', 'message' => "Request successcfully processed.",'code'=>$response)); 
                 return http_response_code(200);

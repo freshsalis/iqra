@@ -7,6 +7,7 @@
  */
 date_default_timezone_set('Africa/Lagos');
 require_once 'db.php';
+// require_once 'Test.php';
 
 
 
@@ -16,41 +17,44 @@ class Question {
 
     public function addQuestion()
     {
-        if ($_POST['question1'] !='' && $_POST['opt1']!='' && $_POST['opt2']!='' && $_POST['answer']!='') {
+        if ($_POST['question1'] !='' ) {
 
             $question = clean($_POST['question1']);
-            $opt1 = clean($_POST['opt1']);
-            $opt2 = clean($_POST['opt2']);
-            $opt3 = clean($_POST['opt3']);
-            $opt4 = clean($_POST['opt4']);
-             $answer = clean($_POST['answer']);
+            $paper_type = clean($_POST['type']);
             $test = clean($_POST['test_id']);
-            $section = clean($_POST['section']);
-            $type = 1;
-            $url = '';
-            if (isset($_FILES['file'])) {
-                $url = $this->UploadDiagram();
-                $type = 3;
-                if ($url ==1) {
-                    return "Diagram not an image";
-                }elseif ($url == 2) {
-                    return "Sorry, diagram already exist, rename the file and try again";
-                }
-                elseif ($url == 3) {
-                    return "Sorry, file is too large";
-                }
-                elseif ($url == 4) {
-                    return "Sorry, only JPG, JPEG, PNG files are allowed for diagrams.";
-                }
-                elseif ($url == 7 || $url == 5) {
-                    return "Sorry, there was an error uploading your file. Contact system admin";
-                }
-            }
 
+
+            if ($paper_type =="obj") {
+                $opt1 = clean($_POST['opt1']);
+                $opt2 = clean($_POST['opt2']);
+                $opt3 = clean($_POST['opt3']);
+                $opt4 = clean($_POST['opt4']);
+                $answer = clean($_POST['answer']);
+                $type = 1;
+                $url = '';
+                if (isset($_FILES['file'])) {
+                    $url = $this->UploadDiagram();
+                    $type = 3;
+                    if ($url ==1) {
+                        return "Diagram not an image";
+                    }elseif ($url == 2) {
+                        return "Sorry, diagram already exist, rename the file and try again";
+                    }
+                    elseif ($url == 3) {
+                        return "Sorry, file is too large";
+                    }
+                    elseif ($url == 4) {
+                        return "Sorry, only JPG, JPEG, PNG files are allowed for diagrams.";
+                    }
+                    elseif ($url == 7 || $url == 5) {
+                        return "Sorry, there was an error uploading your file. Contact system admin";
+                    }
+                }
+                # code...
                 $sql = "insert into question 
-                    (question_name,question_type,diagram,test_id,answer1,answer2,answer3,answer4,answer,section)
+                    (question_name,question_type,diagram,paper_id,answer1,answer2,answer3,answer4,answer)
                  values ('".$question."','".$type."','".$url."','".$test."','".$opt1."',
-                 '".$opt2."','".$opt3."','".$opt4."','".$answer."','".$section."')";
+                 '".$opt2."','".$opt3."','".$opt4."','".$answer."')";
                 $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
 
                 if ($q1) {
@@ -58,6 +62,24 @@ class Question {
                 } else {
                     echo mysqli_error(conn());
                 }
+            }else{
+                $mark1 = clean($_POST['mark1']);
+                $mark2 = clean($_POST['mark2']);
+                $mark3 = clean($_POST['mark3']);
+                $mark4 = clean($_POST['mark4']);
+                $sql = "insert into other_question 
+                    (question_name,paper_id,mark1,mark2,mark3,mark4)
+                 values ('".$question."','".$test."','".$mark1."','".$mark2."','".$mark3."','".$mark4."')";
+                $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+
+                if ($q1) {
+                    echo 1;
+                } else {
+                    echo mysqli_error(conn());
+                }
+            }
+
+                
 
         }else
             echo 4;
@@ -142,18 +164,107 @@ class Question {
             $_SESSION['err_mssg1'] = 'Picture file not selected';
         }
     }
-    public function getQuestionTable($class_id)
+    public function getQuestionTable($paper_id)
     {
         $class_name ='';
         $r = '';
-        $r .= '
+        //check paper type
+        $sql = "SELECT * FROM papers WHERE paper_id='" . $paper_id . "' limit 1";
+        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+        $row = $row = mysqli_fetch_assoc($q1);
+        if (isset( $row['paper_type_id']) && $row['paper_type_id'] == 1) { 
 
-        <button data-toggle="modal" data-target="#del_all_question_modal" data-whatever="@mdo" test='.$class_id.' id="all_del_question" class="btn btn-md btn-danger pull-right">Delete All Questions <span class="glyphicon glyphicon-delete"></span></button>
-        <br><br>
-            <div class="box-body bx" >
-            <table id="example1" class="table table-bordered table-striped table-responsive">
-                <thead>
-                <tr>
+            $r .= '
+
+            <button data-toggle="modal" data-target="#del_all_question_modal" data-whatever="@mdo" test='.$paper_id.' id="all_del_question" data-paper-type="'.$row['paper_type_id'].'" class="btn btn-md btn-danger pull-right">Delete All Questions <span class="glyphicon glyphicon-delete"></span></button>
+            <br><br>
+                <div class="box-body bx" >
+                <table id="example1" class="table table-bordered table-striped table-responsive">
+                    <thead>
+                    <tr>
+                        <th>SN</th>
+                        <th>Question</th>
+                        <th>Diagram</th>
+                        <th>Section</th>
+                        <th>Option 1</th>
+                        <th>Option 2</th>
+                        <th>Option 3</th>
+                        <th>Option 4</th>
+                        <th>Answer</th>
+                        <th>Edit</th>
+                    </tr>
+                    </thead>
+                    <tbody>';
+            $sql = "SELECT * FROM question,papers where
+                papers.paper_id='".$paper_id."' AND question.paper_id='".$paper_id."'    ORDER BY name";
+            $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+            $sn = 0;
+
+
+            if (mysqli_num_rows($q1) > 0) {
+                while ($row = mysqli_fetch_assoc($q1)) {
+                    $sn++;
+                    $class_name = $row['name'];
+                    $id = $row['question_id'];
+                    $question = $row['question_name'];
+                    $opt1 = $row['answer1'];
+                    $opt2 = $row['answer2'];
+                    $section = $row['section'];
+                    $opt3 = $row['answer3'];
+                    $opt4 = $row['answer4'];
+                    $answer = $row['answer'];
+                    $diagram = $row['diagram'];
+                    if(strlen(trim($diagram)) == 0){
+                        $pic = '';
+                    }else{
+
+                        $pic = '<img src="'.$diagram.'" height="50" width="100"/>';
+
+                    }
+                    $r .= '<tr>
+                            <td>' . $sn . '</td>
+                            <td>' . htmlspecialchars_decode($question) . '</td>
+                            <td>' . $pic . '</td>
+                            <td>' . $section . '</td>
+                            <td>' . htmlspecialchars_decode(mysqli_real_escape_string(conn(), $opt1) ). ' </td>
+                            <td>' . htmlspecialchars_decode($opt2) . ' </td>
+                            <td>' . htmlspecialchars_decode($opt3) . ' </td>
+                            <td>' . htmlspecialchars_decode($opt4). ' </td>
+                            <td>Option ' . $answer . ' </td>
+                            <td>
+                                <a title="edit" href="javascript:void(0)" rel="question" class="btn btn-primary btn-sm edit" data-paper-type="'.$paper_id.'" data-toggle="" data-target="'.$paper_id.'" onclick="mode(' . $id . ','.$row['paper_type_id'].');">
+                                    <span class="glyphicon glyphicon-pencil"></span>
+                                </a>
+                            </td>
+                            
+                        </tr>
+
+
+
+                    ';
+                }
+                echo '<div class="box-header with-border">
+                            <h3 class="box-title">'.$class_name.' questions</h3>
+                        </div>';
+            }
+            else {
+                $sql = "SELECT * FROM test WHERE test_id='" . $paper_id . "' ORDER BY name limit 1";
+                $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+                if (mysqli_num_rows($q1) > 0) {
+                    $row = mysqli_fetch_assoc($q1);
+                    $class = $row['name'];
+                    echo '<div class="box-header with-border">
+                            <h3 class="box-title">'.$class.'</h3>
+                        </div>';
+
+
+
+                }
+            }
+            $r .= '
+                    </tbody>
+                    <tfoot>
+                    <tr>
                     <th>SN</th>
                     <th>Question</th>
                     <th>Diagram</th>
@@ -164,100 +275,100 @@ class Question {
                     <th>Option 4</th>
                     <th>Answer</th>
                     <th>Edit</th>
-                </tr>
-                </thead>
-                <tbody>';
-        $sql = "SELECT * FROM question,test where
-			test.test_id='".$class_id."' AND question.test_id='".$class_id."'    ORDER BY name";
-        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
-        $sn = 0;
+                    </tr>
+                    </tfoot>
+                </table>
+                </div>
+            ';
+        }else{
+            $r .= '
 
-        // <td>
+            <button data-toggle="modal" data-target="#del_all_question_modal" data-whatever="@mdo" test='.$paper_id.' id="all_del_question" data-paper-type="'.($row['paper_type_id'] ?? "").'" class="btn btn-md btn-danger pull-right">Delete All Questions <span class="glyphicon glyphicon-delete"></span></button>
+            <br><br>
+                <div class="box-body bx" >
+                <table id="example1" class="table table-bordered table-striped table-responsive">
+                    <thead>
+                    <tr>
+                        <th>SN</th>
+                        <th>Question</th>
+                        <th>Mark 1</th>
+                        <th>Mark 2</th>
+                        <th>Mark 3</th>
+                        <th>Mark 4</th> 
+                    </tr>
+                    </thead>
+                    <tbody>';
+            $sql = "SELECT * FROM other_question,papers where
+                papers.paper_id='".$paper_id."' AND other_question.paper_id='".$paper_id."'    ORDER BY name";
+            $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+            $sn = 0;
 
-		// 					<a type="button" title="delete" class="btn btn-danger btn-sm delete"  rel="question" data-toggle="modal" data-target="#delete" data-whatever="@mdo" onclick="myDelete(' . $id . ','.$class_id.');"><span class="glyphicon glyphicon-trash"></span>
-		// 					</a>
 
-		// 				</td>
+            if (mysqli_num_rows($q1) > 0) {
+                while ($row = mysqli_fetch_assoc($q1)) {
+                    $sn++;
+                    $class_name = $row['name'];
+                    $id = $row['question_id'];
+                    $question = $row['question_name'];
+                    $opt1 = $row['mark1'];
+                    $opt2 = $row['mark2'];
+                    $opt3 = $row['mark3'];
+                    $opt4 = $row['mark4'];
+                    
+                    $r .= '<tr>
+                            <td>' . $sn . '</td>
+                            <td>' . htmlspecialchars_decode($question) . '</td>
+                           
+                            <td>' . htmlspecialchars_decode(mysqli_real_escape_string(conn(), $opt1) ). ' </td>
+                            <td>' . htmlspecialchars_decode($opt2) . ' </td>
+                            <td>' . htmlspecialchars_decode($opt3) . ' </td>
+                            <td>' . htmlspecialchars_decode($opt4). ' </td>
+                            <td>
+                                <a title="edit" href="javascript:void(0)" rel="question" class="btn btn-primary btn-sm edit" data-paper-type="'.$paper_id.'" data-toggle="" data-target="'.$paper_id.'" onclick="mode(' . $id . ','.$row['paper_type_id'].');">
+                                    <span class="glyphicon glyphicon-pencil"></span>
+                                </a>
+                            </td>
+                            
+                        </tr>
 
-        if (mysqli_num_rows($q1) > 0) {
-            while ($row = mysqli_fetch_assoc($q1)) {
-                $sn++;
-                $class_name = $row['name'];
-                $id = $row['question_id'];
-                $question = $row['question_name'];
-                $opt1 = $row['answer1'];
-                $opt2 = $row['answer2'];
-                $section = $row['section'];
-                $opt3 = $row['answer3'];
-                $opt4 = $row['answer4'];
-                $answer = $row['answer'];
-                $diagram = $row['diagram'];
-                if(strlen(trim($diagram)) == 0){
-                    $pic = '';
-                }else{
 
-                    $pic = '<img src="'.$diagram.'" height="50" width="100"/>';
+
+                    ';
+                }
+                echo '<div class="box-header with-border">
+                            <h3 class="box-title">'.$class_name.' questions</h3>
+                        </div>';
+            }
+            else {
+                $sql = "SELECT * FROM papers WHERE paper_id='" . $paper_id . "' ORDER BY name limit 1";
+                $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+                if (mysqli_num_rows($q1) > 0) {
+                    $row = mysqli_fetch_assoc($q1);
+                    $class = $row['name'];
+                    echo '<div class="box-header with-border">
+                            <h3 class="box-title">'.$class.'</h3>
+                        </div>';
+
+
 
                 }
-                $r .= '<tr>
-                        <td>' . $sn . '</td>
-                        <td>' . htmlspecialchars_decode($question) . '</td>
-                        <td>' . $pic . '</td>
-                        <td>' . $section . '</td>
-                        <td>' . htmlspecialchars_decode(mysqli_real_escape_string(conn(), $opt1) ). ' </td>
-                        <td>' . htmlspecialchars_decode($opt2) . ' </td>
-                        <td>' . htmlspecialchars_decode($opt3) . ' </td>
-                        <td>' . htmlspecialchars_decode($opt4). ' </td>
-						<td>Option ' . $answer . ' </td>
-						<td>
-							<a title="edit" href="javascript:void(0)" rel="question" class="btn btn-primary btn-sm edit" data-toggle="" data-target="'.$class_id.'" onclick="mode(' . $id . ','.$class_id.');">
-							    <span class="glyphicon glyphicon-pencil"></span>
-							 </a>
-                        </td>
-                        
-					</tr>
-
-
-
-				';
             }
-            echo '<div class="box-header with-border">
-                        <h3 class="box-title">'.$class_name.' questions</h3>
-                      </div>';
+            $r .= '
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>SN</th>
+                        <th>Question</th>
+                        <th>Mark 1</th>
+                        <th>Mark 2</th>
+                        <th>Mark 3</th>
+                        <th>Mark 4</th> 
+                    </tr>
+                    </tfoot>
+                </table>
+                </div>
+            ';
         }
-        else {
-            $sql = "SELECT * FROM test WHERE test_id='" . $class_id . "' ORDER BY name limit 1";
-            $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
-            if (mysqli_num_rows($q1) > 0) {
-                $row = mysqli_fetch_assoc($q1);
-                $class = $row['name'];
-                echo '<div class="box-header with-border">
-                        <h3 class="box-title">'.$class.'</h3>
-                      </div>';
-
-
-
-            }
-        }
-        $r .= '
-                </tbody>
-                <tfoot>
-                <tr>
-                <th>SN</th>
-                <th>Question</th>
-                <th>Diagram</th>
-                <th>Section</th>
-                <th>Option 1</th>
-                <th>Option 2</th>
-                <th>Option 3</th>
-                <th>Option 4</th>
-                <th>Answer</th>
-                <th>Edit</th>
-                </tr>
-                </tfoot>
-            </table>
-            </div>
-        ';
 
         return $r;
 
@@ -700,7 +811,8 @@ class Question {
             return 'D';
         }
     }
-    function getQuestionModal($question,$opt1,$opt2,$opt3,$opt4,$answer,$test_id){
+
+    function getQuestionModal($question,$opt1,$opt2,$opt3,$opt4,$answer,$test_id,$type){
         $this->class = new _Class();
         $r ='<div class="panel panel-success cbtlogin" >
                             <div class="panel-body">
@@ -713,6 +825,7 @@ class Question {
                                             <span class="input-group-addon">Question</span>
                                             <textarea class="ckeditor form-control" id="question" name="question">'.$question.'</textarea>
                                             <input type="hidden" value="'.$test_id.'" name="test_id" id="test_id" class="" placeholder="">
+                                            <input type="hidden" value="'.$type.'" name="type" id="type" class="" placeholder="">
 
                                         </div>
                                         <br/>
@@ -762,45 +875,135 @@ class Question {
         return $r;
     }
 
+    function getOtherQuestionModal($question,$opt1,$opt2,$opt3,$opt4,$test_id,$type){
+        $this->class = new _Class();
+        $r ='<div class="panel panel-success cbtlogin" >
+                            <div class="panel-body">
+                            <div ID="alert1"></div>
+                            <div id="editbody"></div>
+
+                                <form class="form-horizontal stdform" method="post" name="form1" id="studentForm">
+                                    <div class="box-body">
+                                            <div class="input-group">
+                                            <span class="input-group-addon">Question</span>
+                                            <textarea class="ckeditor form-control" id="question" name="question">'.$question.'</textarea>
+                                            <input type="hidden" value="'.$test_id.'" name="test_id" id="test_id" class="" placeholder="">
+                                            <input type="hidden" value="'.$type.'" name="type" id="type" class="" placeholder="">
+
+                                        </div>
+                                        <br/>
+                                             <div class="input-group">
+                                                <span class="input-group-addon">Option 1</span>
+                                            <input type="text" value="'.$opt1.'" name="opt1" id="opt1" class="form-control" placeholder="Option A">
+                                        </div>
+                                    <br/>
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Option 2</span>
+                                            <input type="text" value="'.$opt2.'" name="opt2" id="opt2" class="form-control" placeholder="Option B">
+                                        </div>
+                                    <br/>
+                                    <div class="input-group">
+                                            <span class="input-group-addon">Option 3</span>
+                                            <input type="text" value="'.$opt3.'" name="opt3" id="opt3" class="form-control" placeholder="Option C">
+                                        </div>
+                                    <br/>
+                                    <div class="input-group">
+                                            <span class="input-group-addon">Option 4</span>
+                                            <input type="text" value="'.$opt4.'" name="opt4" id="opt4" class="form-control" placeholder="Option D">
+                                        </div>
+                                    <br/>
+                                    
+
+                <!-- /input-group -->
+        <!-- /input-group -->
+
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+            </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-sm-10 col-sm-offset-2">
+                    <button class="btn btn-md btn-primary" type="submit"  id="update">Update</button>
+                </div>
+            </div>
+            </div>
+            ';
+        return $r;
+    }
+
     public function getEditQuestion(){
         $idm = $_POST['idm'];
-        $sql = 'select * from question WHERE question_id="'.$idm.'" limit 1';
-        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
-        $row = mysqli_fetch_assoc($q1);
-        $question = $row['question_name'];
-        $opt1 = $row['answer1'];
-        $opt2 = $row['answer2'];
-        $opt3 = $row['answer3'];
-        $opt4 = $row['answer4'];
-        $answer = $row['answer'];
-        $question_id = $row['question_id'];
+        $type = $_POST['type'];
 
-
-        return $this -> getQuestionModal($question,$opt1,$opt2,$opt3,$opt4,$answer,$question_id);
+        if ($type == 1) {
+            # code...
+            $sql = 'select * from question WHERE question_id="'.$idm.'" limit 1';
+            $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+            $row = mysqli_fetch_assoc($q1);
+            $question = $row['question_name'];
+            $opt1 = $row['answer1'];
+            $opt2 = $row['answer2'];
+            $opt3 = $row['answer3'];
+            $opt4 = $row['answer4'];
+            $answer = $row['answer'];
+            $question_id = $row['question_id'];
+    
+            return $this -> getQuestionModal($question,$opt1,$opt2,$opt3,$opt4,$answer,$question_id,$type);
+        }else{
+            $sql = 'select * from other_question WHERE question_id="'.$idm.'" limit 1';
+            $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+            $row = mysqli_fetch_assoc($q1);
+            $question = $row['question_name'];
+            $mark1 = $row['mark1'];
+            $mark2 = $row['mark2'];
+            $mark3 = $row['mark3'];
+            $mark4 = $row['mark4'];
+            $question_id = $row['question_id'];
+    
+            return $this -> getOtherQuestionModal($question,$mark1,$mark2,$mark3,$mark4,$question_id,$type);
+        }
+       
 
     }
 
     public function  editQuestion(){
         $question = clean($_POST['question']);
-        $opt1 = clean($_POST['opt1']);
-        $opt2 = clean($_POST['opt2']);
-        $opt3 = clean($_POST['opt3']);
-        $opt4 = clean($_POST['opt4']);
-        $answer = clean($_POST['answer']);
         $test = clean($_POST['test_id']);
+        $type = clean($_POST['type']);
 
+        if ($type == 1) {
+            # code...
+            $opt1 = clean($_POST['opt1']);
+            $opt2 = clean($_POST['opt2']);
+            $opt3 = clean($_POST['opt3']);
+            $opt4 = clean($_POST['opt4']);
+            $answer = clean($_POST['answer']);
 
+            $sql = 'UPDATE question SET question_name="'.$question.'",
+                    answer1="'.$opt1.'",
+                    answer2="'.$opt2.'",
+                    answer3="'.$opt3.'",
+                    answer4="'.$opt4.'",
+                    answer="'.$answer.'"
+                    WHERE question_id="'.$test.'" ';
+        }else{
+            $opt1 = clean($_POST['opt1']);
+            $opt2 = clean($_POST['opt2']);
+            $opt3 = clean($_POST['opt3']);
+            $opt4 = clean($_POST['opt4']);
 
-        $sql = 'UPDATE question SET question_name="'.$question.'",
-                answer1="'.$opt1.'",
-                answer2="'.$opt2.'",
-                answer3="'.$opt3.'",
-                answer4="'.$opt4.'",
-                answer="'.$answer.'"
-                WHERE question_id="'.$test.'" ';
+            $sql = 'UPDATE other_question SET question_name="'.$question.'",
+                    mark1="'.$opt1.'",
+                    mark2="'.$opt2.'",
+                    mark3="'.$opt3.'",
+                    mark4="'.$opt4.'"
+                    WHERE question_id="'.$test.'" ';
+        }
+
         $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
-
-
 
         if($q1){
             echo  1;
@@ -816,19 +1019,31 @@ class Question {
             echo 1;
         }else echo mysqli_error(conn());
     }
-    public function deleteAllQuestions($name,$password,$test_id)
+    public function deleteAllQuestions($name,$password,$paper_id,$type)
     {
         $class_name ='';
         $sql="select * from admin where username='$name' and password='$password' ";
 		$qry=mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
 		$numrows = mysqli_num_rows($qry);
 
+        
 		if ($numrows ==1){
-                $del1="DELETE FROM question WHERE test_id='".$test_id."' ";
+            if ($type ==1) {
+                # code...
+                $del1="DELETE FROM question WHERE paper_id='".$paper_id."' ";
                 $response1= mysqli_query(conn(), $del1) or die(mysqli_error(conn()));
                 
-                $del6="DELETE FROM sub_question   WHERE test_id='".$test_id."' ";
+                $del6="DELETE FROM sub_question   WHERE paper_id='".$paper_id."' ";
                 $response1= mysqli_query(conn(), $del6) or die(mysqli_error(conn()));
+            }else{
+                $del1="DELETE FROM other_question WHERE paper_id='".$paper_id."' ";
+                $response1= mysqli_query(conn(), $del1) or die(mysqli_error(conn()));
+                
+                $del6="DELETE FROM sub_question   WHERE paper_id='".$paper_id."' ";
+                $response1= mysqli_query(conn(), $del6) or die(mysqli_error(conn()));
+            }
+    
+                
             
                 return 1;
 	 	}else{
@@ -836,8 +1051,8 @@ class Question {
 		}       
     }
 
-    public function getQuestionForm($test_id){
-        $sql = "SELECT * FROM test WHERE test_id='" . $test_id . "' limit 1";
+    public function getQuestionForm($paper_id){
+        $sql = "SELECT * FROM papers WHERE paper_id='" . $paper_id . "' limit 1";
         $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
         $r = '';
         if (mysqli_num_rows($q1) > 0) {
@@ -846,15 +1061,19 @@ class Question {
                 $r .= '<div class="box-header with-border">
                         <h3 class="box-title">Add questions to '.$class.'</h3>
                       </div>';
-                $r .='
+                if ($row['paper_type_id'] == 1) {
+                    # code...
+                    $r .='
                         <div class="box-body">
                             <div class="box box-info">
                                 <div class="box-body">
                                     <form class="form-add" role="form" id="form-add" enctype="multipart/form-data">
                                         <b>Question:</b>
                                             <textarea class="col-lg-12 form-control" id="editor" name="question"></textarea>
-                                            <input type="hidden" value="'.$test_id.'" name="test_id" id="test_id" class="" placeholder="">
-                                        <div class="row">
+                                            <input type="hidden" value="'.$paper_id.'" name="test_id" id="test_id" class="" placeholder="">
+                                            <input type="hidden" value="'.$row['paper_type_id'].'" name="type_id" id="type_id" class="" placeholder="">
+
+                                            <div class="row">
                                             <div class="col-lg-6">
                                                 <b>Option 1: </b>
                                                 <textarea class="col-lg-12 form-control" id="editor2" name="question"></textarea>
@@ -876,20 +1095,7 @@ class Question {
                                         </div>
                                         
                                     <br/>                                    
-                                        <div class="input-group">
-                                            <span class="input-group-addon">Section</span>
-                                            <select class="form-control" name="section" id="section">
-                                                <option value="">-Select option-</option>
-                                                
-                                           
-                                        ';
-                                        for ($i=1; $i <= $row['batches']; $i++) { 
-                                            $r .='<option value="'.$i.'">Section '.$i.'</option>';
-                                        }
-                                        $r .='
-                                        </select>
-                                        </div>
-                                    <br>
+                                    
                                     <div class="input-group">
                                             <span class="input-group-addon">Answer</span>
                                             <select class="form-control" name="answer" id="answer">
@@ -907,8 +1113,7 @@ class Question {
                                 </div>
                             <br/>
 
-                <!-- /input-group -->
-
+            
                                                     <br/>
                                                     <input type="submit" id="add" class="btn btn-primary form-control add" rel="Question" value="Add" placeholder="">
                                 </form>
@@ -918,8 +1123,51 @@ class Question {
 
                             </div><!-- /.box-body -->
                         </div><!-- /.box -->
+                    ';
+                }else{
+                    $r .='
+                        <div class="box-body">
+                            <div class="box box-info">
+                                <div class="box-body">
+                                    <form class="form-add" role="form" id="form-add" enctype="multipart/form-data">
+                                        <b>Question:</b>
+                                            <textarea class="col-lg-12 form-control" id="editor" name="question"></textarea>
+                                            <input type="hidden" value="'.$paper_id.'" name="test_id" id="test_id" class="" placeholder="">
+                                            <input type="hidden" value="'.$row['paper_type_id'].'" name="type_id" id="type_id" class="" placeholder="">
 
-                ';
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                                <b>1st Lowest Mark: </b>
+                                                <input type="number" step="0.1" value="0" name="mark1" id="mark1" class="form-control" placeholder="">
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <b>Second Lowest Mark: </b>
+                                                <input type="number" step="0.1" value="0.25" name="mark2" id="mark2" class="form-control" placeholder="">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                                <b>Average Mark: </b>
+                                                <input type="number" step="0.1" value="0.5" name="mark3" id="mark3" class="form-control" placeholder="">
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <b>Higest Mark: </b>
+                                                <input type="number" step="0.1" value="1" name="mark4" id="mark4" class="form-control" placeholder="">
+                                            </div>
+                                        </div>
+                                        
+                                    <br/>                                    
+                                    <br/>
+                                    <input type="submit" id="add" class="btn btn-primary form-control add" rel="Question" value="Add" placeholder="">
+                                </form>
+                                </div><!-- /input-group -->
+                                <br/>
+                                <div class="jumbotron msg"></div>
+
+                            </div><!-- /.box-body -->
+                        </div><!-- /.box -->
+                    ';
+                }
 
             }
         }
@@ -931,8 +1179,9 @@ class Question {
         return $r;
     }
 
-    public function getQuestionExcelForm($test_id){
-        $sql = "SELECT * FROM test WHERE test_id='" . $test_id . "' limit 1";
+    public function getQuestionExcelForm($exam_id){
+        $test = new Test();
+        $sql = "SELECT * FROM papers WHERE exam_id='" . $exam_id . "' limit 1";
         $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
         $r = '';
         if (mysqli_num_rows($q1) > 0) {
@@ -949,19 +1198,14 @@ class Question {
                                         <div class="input-group">
                                             <span class="input-group-addon">Select file</span>
                                             <input type="file" name="uploadFile" id="uploadFile" class="form-control" placeholder=""/>
-                                            <input type="hidden" value="'.$test_id.'" name="test_id" id="test_id" class="" placeholder=""/>
+                                            <input type="hidden" value="'.$exam_id.'" name="test_id" id="test_id" class="" placeholder=""/>
                                                </div>
                                                <br/>
                                                <div class="input-group">
-                                                   <span class="input-group-addon">Section</span>
-                                                   <select class="form-control" name="section" id="section">
-                                                       <option value="">-Select option-</option>
-                                                       
-                                                  
+                                                   <span class="input-group-addon">Paper</span>
+                                                   
                                                ';
-                                               for ($i=1; $i <= $row['components']; $i++) { 
-                                                   $r .='<option value="'.$i.'">Section '.$i.'</option>';
-                                               }
+                                               $r .= $test->getPaperCombo($exam_id);
                                                $r .='
                                                </select>
                                                </div>
@@ -1001,8 +1245,9 @@ class Question {
         return $r;
     }
 
-    public function getQuestionWordForm($test_id){
-        $sql = "SELECT * FROM test WHERE test_id='" . $test_id . "' limit 1";
+    public function getQuestionWordForm($exam_id){
+        $test = new Test();
+        $sql = "SELECT * FROM exam WHERE exam_id='" . $exam_id . "' limit 1";
         $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
         $r = '';
         if (mysqli_num_rows($q1) > 0) {
@@ -1019,21 +1264,17 @@ class Question {
                                         <div class="input-group">
                                             <span class="input-group-addon">Select file</span>
                                             <input type="file" name="uploadFile" id="uploadFile" class="form-control" placeholder=""/>
-                                            <input type="hidden" value="'.$test_id.'" name="test_id" id="test_id" class="" placeholder=""/>
+                                            <input type="hidden" value="'.$exam_id.'" name="test_id" id="test_id" class="" placeholder=""/>
                                          </div><br>
                                          <div class="input-group">
-                                            <span class="input-group-addon">Section</span>
-                                            <select class="form-control" name="section" id="section">
-                                                <option value="">-Select option-</option>
-                                                
-                                           
-                                        ';
-                                        for ($i=1; $i <= $row['components']; $i++) { 
-                                            $r .='<option value="'.$i.'">Section '.$i.'</option>';
-                                        }
-                                        $r .='
-                                        </select>
-                                        </div>
+                                            <span class="input-group-addon">Paper</span>
+                                            
+                                                ';
+                                                $r .= $test->getPaperCombo($exam_id);
+                                        
+                                            $r .='
+                                            </select>
+                                            </div>
                                          <br/>
                                         <input type="submit" id="uploadWord" class="btn btn-primary form-control uploadWord" rel="Question" value="Upload" placeholder="">
 

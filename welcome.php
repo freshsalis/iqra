@@ -7,46 +7,48 @@
  */
 session_start();
 require_once 'Admin/asset/classes/Student.php';
+require_once 'Admin/asset/classes/Test.php';
+require_once 'Admin/asset/classes/db.php';
 $student = new Student();
 if (!$_SESSION['stdid']){
     header('location:login.php');
 }
-$num_quest = $_SESSION['limit'];
+
 $stdid = $_SESSION['stdid'];
-$testid = $_SESSION['testid'];
+$testid = $_SESSION['test_id'];
 
-$r1="select * from sub_question WHERE sub_question.stud_id='".$stdid."' ";
-$response1= mysqli_query(conn(), $r1) or die(mysqli_error(conn()));
-$count = mysqli_num_rows($response1);
+// $r1="select * from sub_question WHERE sub_question.stud_id='".$stdid."' ";
+// $response1= mysqli_query(conn(), $r1) or die(mysqli_error(conn()));
+// $count = mysqli_num_rows($response1);
 
 
-if ($count ==0) {
-    // echo "empty";
-    $str = '';
-    $check_quest = 0;
-    for ($i=0; $i < count($_SESSION['minQ']); $i++) { 
-        $check_quest++;
-        $a = range($_SESSION['minQ'][$i],$_SESSION['maxQ'][$i]);
-        shuffle($a);
-        $limit = explode(',',$_SESSION['quest_per_sect']);
-        $hundred = array_slice($a,0,$limit[$i]+2);
-        shuffle($hundred);
-        $str .=implode(", ",$hundred);
-    }
-    if ($check_quest ==0) {
-        echo "<h2>No questions available.</h2>";
-        return;
-    }
+// if ($count ==0) {
+//     // echo "empty";
+//     $str = '';
+//     $check_quest = 0;
+//     for ($i=0; $i < count($_SESSION['minQ']); $i++) { 
+//         $check_quest++;
+//         $a = range($_SESSION['minQ'][$i],$_SESSION['maxQ'][$i]);
+//         shuffle($a);
+//         $limit = explode(',',$_SESSION['quest_per_sect']);
+//         $hundred = array_slice($a,0,$limit[$i]+2);
+//         shuffle($hundred);
+//         $str .=implode(", ",$hundred);
+//     }
+//     if ($check_quest ==0) {
+//         echo "<h2>No questions available.</h2>";
+//         return;
+//     }
     
-    $r0="INSERT INTO sub_question (question_id,stud_id,test_id)
-         SELECT question.question_id,'$stdid',question.test_id FROM question 
-         WHERE question.question_id IN ($str) AND test_id='$testid'  
-         order by FIELD(question.question_id,$str) 
-         LIMIT ".$num_quest."";
+//     $r0="INSERT INTO sub_question (question_id,stud_id,test_id)
+//          SELECT question.question_id,'$stdid',question.test_id FROM question 
+//          WHERE question.question_id IN ($str) AND test_id='$testid'  
+//          order by FIELD(question.question_id,$str) 
+//          LIMIT ".$num_quest."";
 
-        $response=mysqli_query(conn(), $r0) or die(mysqli_error(conn()));
+//         $response=mysqli_query(conn(), $r0) or die(mysqli_error(conn()));
         
-}
+// }
 ?>
 <!DOCTYPE html>
 <html>
@@ -82,21 +84,20 @@ if ($count ==0) {
     <!-- /.login-logo -->
     <div class="login-logo">
     </div>
-    <div class="col-md-2"></div>
-    <div class="login-box-body col-md-6">
+    <div class="col-md-1"></div>
+    <div class="login-box-body col-md-8">
 
         <div class="panel panel-success cbtlogin" >
             <div class="panel-body ">
                 <div class="col-md-12 text-justify">
                     <div>
-                        <h3 class="rapi text-center"><strong> <?php  echo $_SESSION['test']; ?>  </strong></h3>
+                        <h3 class="rapi text-center"><strong> <?php  echo $_SESSION['exam']; ?>  </strong></h3>
 
                         <div class="table col-md-12">
 
-                                    <?php echo $student->signAttendance($_SESSION['stdid'],$_SESSION['testid']); ?>
+                                    <?php //echo $student->signAttendance($_SESSION['stdid'],$_SESSION['test_id']); ?>
 
-                                    <p>Welcome  <b><?php echo $_SESSION['name']; ?> (<?php echo $_SESSION['user']; ?>) </b>, This test comprises of <b><?php echo $_SESSION['limit']; ?> questions</b> and the duration is <b><?php echo ($_SESSION['duration']/60); ?> minutes</b>, so u are
-                                        expected to spend not more than <?php echo (round((($_SESSION['duration']/60)/$_SESSION['limit']),2)); ?> minutes on each question. Please abide by the following rules while attempting your test.
+                                    <p>Welcome  <b><?php echo $_SESSION['name']; ?> (<?php echo $_SESSION['user']; ?>) </b>. Please abide by the following rules while attempting your test.
                                         <ul>
                                             <li>You are not allowed to take any personal items with you into the testing room. This includes all purses, bags, books, notes, PDAs, cell phones, pagers, watches, wallets, hats, gloves and coats.</li>
                                             <li> You are only allowed to bring your ID card,pen, and a calculator into the testing room.</li>
@@ -110,10 +111,12 @@ if ($count ==0) {
                                         }
                                     ?>
                         </div>
-                    </div>
-
-
-                    <button type="button" class="btn btn-success btn-block" onClick=window.location='./?testid=<?php echo sha1($_SESSION['testid']) ?>'>Start Exam</button>
+                    </div> 
+                     <!-- <button type="button" class="btn btn-success btn-block" onClick=window.location='./?testid=<?php echo sha1($_SESSION['test_id']) ?>'>Start Exam</button> -->
+                    <?php
+                        $test = new Test();
+                        echo $test->getStartPaperMenu($testid,"./","",$stdid);
+                        ?>
                 </div>
 
             </div>

@@ -52,7 +52,7 @@ echo $user->getHeader();
                 <div class="small-box bg-aqua">
                     <div class="inner">
                         <h3><?php echo $test->getTestCount('Active'); ?></h3>
-                        <p>Ongoing Tests</p>
+                        <p>Ongoing Exams</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-bag"></i>
@@ -64,7 +64,7 @@ echo $user->getHeader();
                 <div class="small-box bg-green">
                     <div class="inner">
                         <h3><?php echo $test->getTestCount('Pending'); ?></h3>
-                        <p>Pending Tests</p>
+                        <p>Pending Exams</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-stats-bars"></i>
@@ -76,7 +76,7 @@ echo $user->getHeader();
                 <div class="small-box bg-yellow">
                     <div class="inner">
                         <h3><?php echo $test->getTestCount('Compteted'); ?></h3>
-                        <p>Completed Tests</p>
+                        <p>Completed Exams</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-person-add"></i>
@@ -88,7 +88,7 @@ echo $user->getHeader();
                 <div class="small-box bg-primary">
                     <div class="inner">
                         <h3><?php echo $class->getTestCount(); ?></h3>
-                        <p>Total Number Of Tests</p>
+                        <p>Total Number Of Exams</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-pie-graph"></i>
@@ -96,34 +96,7 @@ echo $user->getHeader();
                 </div>
             </div><!-- ./col -->
         </div><!-- /.row -->
-        <div class="row">
-            <div class="col-lg-3 col-xs-6">
-                <!-- small box -->
-                <div class="small-box bg-aqua">
-                    <div class="inner">
-                        <h3><?php echo $class->getStudentCount(); ?></h3>
-                        <p>Number Of Students</p>
-                    </div>
-                    <div class="icon">
-                        <i class="ion ion-bag"></i>
-                    </div>
-
-                </div>
-            </div><!-- ./col -->
-            <div class="col-lg-3 col-xs-6">
-                <!-- small box -->
-                <div class="small-box bg-primary">
-                    <div class="inner">
-                        <h3><?php echo $class->getClassCount(); ?></h3>
-                        <p>Number of Classes</p>
-                    </div>
-                    <div class="icon">
-                        <i class="ion ion-stats-bars"></i>
-                    </div>
-                </div>
-            </div><!-- ./col -->
-
-        </div><!-- /.row -->
+      
         <!-- Main row -->
 
     </section><!-- /.content -->

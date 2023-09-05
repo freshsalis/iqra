@@ -3,8 +3,12 @@ header('Content-Type: text/html; charset=utf-8');
 include("../classes/db.php");
 
 if(isset($_FILES['uploadFile']['name']) && $_FILES['uploadFile']['name'] != "") {
-    $test_id = $_POST['test'];
-    $section = $_POST['section'];
+    $paper_id = $_POST['paper'];
+
+    if ($paper_id == 'undefined') {
+        echo "<h4 class='margin-4 text-danger'>* Paper not selected</h4>";
+        return;
+    }
 
     $filename = "".$_FILES['uploadFile']['name'];
     $fileArray = pathinfo($filename);
@@ -80,7 +84,7 @@ if(isset($_FILES['uploadFile']['name']) && $_FILES['uploadFile']['name'] != "") 
                 $opt="D";
 
             }
-            $query = "insert into question (question_name, answer1, answer2, answer3, answer4, answer,test_id,section) VALUES ('$q','$a','$b','$c','$d','$correct','$test_id','$section') ";
+            $query = "insert into question (question_name, answer1, answer2, answer3, answer4, answer,paper_id) VALUES ('$q','$a','$b','$c','$d','$correct','$paper_id') ";
             $result = mysqli_query($con,$query) or die(mysqli_error($con));
             if($num_rows=mysqli_affected_rows($con)>0){
                 $num=$num+$num_rows;

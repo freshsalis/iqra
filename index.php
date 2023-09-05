@@ -1,15 +1,97 @@
 <?php
 session_start();
 require_once 'Admin/asset/classes/db.php';
+require_once 'Admin/asset/classes/Student.php';
+
+
+ 
  		if (!$_SESSION['stdid']){
 			header('location:login.php');
 		}
 
-         $testid=$_SESSION['testid'];
+         $testid=$_SESSION['test_id'];
          $stdid = $_SESSION['stdid'];
-         $limit = $_SESSION['limit'];
+         $paper = clean($_GET['p']);
 
-        $sql = "select * FROM track_timer WHERE stdid='".trim($stdid)."' AND test_id='".trim($testid)."'";
+        
+
+        
+        //  check paper
+        $sql_check = "select * FROM papers WHERE sha1(paper_id)='".$paper."'";
+        $query_check = mysqli_query(conn(), $sql_check) or die(mysqli_error(conn()));
+
+        $numrows=mysqli_num_rows($query_check);
+        
+        // die($numrows);
+        if($numrows > 0){
+
+            $fetch1 = mysqli_fetch_assoc($query_check);
+            $paper_id = $fetch1['paper_id'];
+            $num_quest = $fetch1['question_per_stud'];
+            $duration = $fetch1['time'];
+            $insta = $fetch1['instant_result'];
+
+            // sign attendance
+            $student = new Student();
+            $aid =  $student->signAttendance($stdid,$paper_id);
+            
+
+            // check if already taken
+            $sql_taken = "select * FROM testscore WHERE paper_id='".$paper_id."'  AND stdid='".$stdid."'";
+            $query_taken = mysqli_query(conn(), $sql_taken) or die(mysqli_error(conn()));
+            $numrow_taken=mysqli_num_rows($query_taken);
+
+            if ($numrow_taken >0) {
+                header('location:welcome.php');
+                return;
+            }
+
+            // check if already has question
+            $sqlsub = "select * FROM sub_question WHERE paper_id='".$paper_id."'  AND stud_id='".$stdid."'";
+            $querysub = mysqli_query(conn(), $sqlsub) or die(mysqli_error(conn()));
+            $numrowssub=mysqli_num_rows($querysub);
+
+            if ($numrowssub ==0) {
+                $str = '';
+                $check_quest = 0;
+                $min_array = 0;
+                $max_array = 0;
+                $sql = "SELECT section,MAX(question_id) as maxQ,MIN(question_id) as minQ FROM `question`  WHERE paper_id='".$paper_id."' GROUP BY section ORDER BY section";
+                $query = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+                while($fetch=mysqli_fetch_assoc($query)){
+                    $min_array= $fetch['minQ'];
+                    $max_array = $fetch['maxQ'];
+                }
+                    
+                        $a = range($min_array,$max_array);
+                        shuffle($a);
+                        
+                        $hundred = array_slice($a,0,$num_quest);
+                        shuffle($hundred);
+                        $str .=implode(", ",$hundred);
+                    
+                    if ($max_array ==0) {
+                        echo "<h2>No questions available.</h2>";
+                        return;
+                    }
+                    
+                    $r0="INSERT INTO sub_question (question_id,stud_id,paper_id)
+                         SELECT question.question_id,'$stdid',question.paper_id FROM question 
+                         WHERE question.question_id IN ($str) AND question.paper_id='$paper_id'  
+                         order by FIELD(question.question_id,$str) 
+                         LIMIT ".$num_quest."";
+
+                        $response=mysqli_query(conn(), $r0) or die(mysqli_error(conn()));
+                        
+                }
+                
+            
+        }else{
+            header('location:login.php');
+
+        }
+       
+        $sql = "select * FROM track_timer WHERE stdid='".trim($stdid)."' AND paper_id='".$paper_id."'";
         $query1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
 
          $numrows=mysqli_num_rows($query1);
@@ -22,7 +104,7 @@ require_once 'Admin/asset/classes/db.php';
         // echo "fresh";
     }
     else{
-        $sql0="select * from test where test_id='$testid'";
+        $sql0="select * from papers where paper_id='$paper_id'";
         $qry = mysqli_query(conn(), $sql0) or die(mysqli_error(conn()));
 
         
@@ -35,7 +117,8 @@ require_once 'Admin/asset/classes/db.php';
             // die();
 
         }
-            }
+    }
+
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -86,8 +169,8 @@ require_once 'Admin/asset/classes/db.php';
 
                 <?php
                 //check if user started d test elsewhere
-                $r1="select * from sub_question s,question q where s.test_id='".$testid."'
-                AND s.stud_id='".$stdid."' AND s.question_id=q.question_id ORDER BY s.sub_id limit ".$limit." ";
+                $r1="select * from sub_question s,question q where s.paper_id='".$paper_id."'
+                AND s.stud_id='".$stdid."' AND s.question_id=q.question_id ORDER BY s.sub_id limit ".$num_quest." ";
                 $response1= mysqli_query(conn(), $r1) or die(mysqli_error(conn()));
 
                 if(mysqli_num_rows($response1)>0){
@@ -96,6 +179,9 @@ require_once 'Admin/asset/classes/db.php';
                     ?>
                     <form method='post' id='quiz_form' action="">
                         <input type="hidden" class="last" value="<?php echo mysqli_num_rows($response1); ?>">
+                        <input type="hidden" class="std" name="std" value="<?php echo $stdid; ?>">
+                        <input type="hidden" class="paper" name="paper" value="<?php echo $paper_id; ?>">
+                        <input type="hidden" class="insta" name="insta" value="<?php echo $paper_id; ?>">
                         <?php
                         while($result=mysqli_fetch_array($response1)){ $sn++;
                             $optAnswered = 0;
@@ -261,12 +347,12 @@ require_once 'Admin/asset/classes/db.php';
                                     <b style="font-size: 1.5vmax;">Name: <b><span><?PHP echo strtoupper($_SESSION['name']); ?></span></b> </b><br/>
                                     <b style="font-size: 1.5vmax;">Reg. No.: <b><span><?PHP echo strtoupper($_SESSION['user']); ?></span></b> </b><br/>
                                     <b style="font-size: 1.0vmax;">Program: <b><span><?PHP echo  $_SESSION['dept']; ?></span></b> </b><br/>
-                                    <b style="font-size: 1.0vmax;"> Exam : <b><span><?PHP echo $_SESSION['test']; ?></span></b><br/>
+                                    <b style="font-size: 1.0vmax;"> Exam : <b><span><?PHP echo $_SESSION['exam']; ?></span></b><br/>
                                     </b>
                                 </div>
                                 <div class="pull-right">
                                     <small><a href="./logout.php" class="btn btn-warning" id="signout" ><span class="glyphicon glyphicon-log-out"></span> Logout</a>
-                                    <input type="hidden" value="<?php echo $_SESSION['duration']?>" id="dur">
+                                    <input type="hidden" value="<?php echo $duration?>" id="dur">
                                 </div>
                             </div>
                         </div><!-- /.box-body -->
@@ -326,7 +412,8 @@ require_once 'Admin/asset/classes/db.php';
     <script type="text/javascript" src="Admin/dist/js/custom.js"></script>
     <script type="text/javascript">
         var totalq = <?php echo $numrows; ?>;
-        var id = <?php echo $_SESSION['stdid']; ?>;
+        var id = <?php echo $stdid; ?>;
+        var aid = <?php echo $aid; ?>;
 
         //var testid = <?php //echo $_SESSION['testid']; ?>
         
@@ -345,13 +432,13 @@ require_once 'Admin/asset/classes/db.php';
         document.addEventListener('contextmenu', event => event.preventDefault());
         
         $(document).ready(function (e) {
-            setInterval ('countdown(id)', 1000);
-            setInterval('trackTimer(<?php echo $_SESSION['stdid']; ?>, <?php echo $_SESSION['testid']; ?>)', 1000*30)
+            setInterval ('countdown(aid)', 1000);
+            setInterval('trackTimer(<?php echo $stdid; ?>, <?php echo $paper_id; ?>)', 1000*5)
             confirmSubmit();
-            optionClick(<?php echo $_SESSION['stdid']; ?>);
+            optionClick(<?php echo $stdid; ?>);
             logout();
 
-            var storedTime = JSON.parse(localStorage.getItem(id));
+            var storedTime = JSON.parse(localStorage.getItem(aid));
             $('.min').html(padZero(storedTime.min));
             $('.sec').html(padZero(storedTime.sec));
             $('body').click(function() {

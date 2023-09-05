@@ -320,7 +320,7 @@ class _Class
         $count =0;
 
 
-        $sql = "SELECT COUNT(class_id) AS cc FROM test  ";
+        $sql = "SELECT COUNT(paper_id) AS cc FROM papers  ";
         $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
         $sn = 0;
 

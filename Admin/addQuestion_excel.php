@@ -53,21 +53,11 @@ echo $user->getHeader();
                 <div class="col-md-3">
                     <div class="box box-solid">
                         <?php
-                        echo $test ->getTestMenu($idm,'addQuestion_excel.php?id=');
+                        echo $test ->getExamMenu($idm,'addQuestion_excel.php?id=');
                         ?>
 
                     </div><!-- /. box -->
-                    <div class="box box-solid">
-
-                        <div class="box-body no-padding">
-                            <ul class="nav nav-pills nav-stacked">
-                                <li><a href="#"><i class="glyphicon glyphicon-play"></i> Ongoing Tests <span class="label label-success pull-right">42</span></a></li>
-                                <li><a href="#"><i class="glyphicon glyphicon-pause"></i> Pending Test <span class="label label-success pull-right">62</span></a></li>
-                                <li><a href="#"><i class="glyphicon glyphicon-check"></i> Completed Tests <span class="label label-success pull-right">32</span></a></li>
-
-                            </ul>
-                        </div><!-- /.box-body -->
-                    </div><!-- /. box -->
+                    
                 </div><!-- /.col -->
                 <div class="col-md-9">
 

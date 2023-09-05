@@ -54,7 +54,7 @@ if(isset($_GET['id']))
                 <div class="col-md-3">
                     <div class="box box-solid">
                         <?php
-                        echo $test ->getTestMenu($idm,'addQuestion_word.php?id=');
+                        echo $test ->getExamMenu($idm,'addQuestion_word.php?id=');
                         ?>
 
                     </div><!-- /. box -->

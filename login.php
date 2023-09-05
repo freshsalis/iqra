@@ -62,7 +62,7 @@ session_destroy();
                 <?php
                 include 'Admin/asset/classes/Test.php';
                 $test = new Test();
-                echo $test->getTestCombo();
+                echo $test->getActiveExamCombo();
                 ?>
             </div>
             <div class="row">

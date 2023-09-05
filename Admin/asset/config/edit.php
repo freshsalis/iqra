@@ -22,6 +22,10 @@
                 $test -> editTest();
                 break;
 
+            case 'editExam':
+                $test -> editExam();
+                break;
+
             case 'editClass':
                 $class ->editClass();
                 break;
@@ -38,6 +42,9 @@
 
             case 'editQuestion':
                 $question ->editQuestion();
+                break;
+            case 'editPaper':
+                $test ->editPaper();
                 break;
 
         }
