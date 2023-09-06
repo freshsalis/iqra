@@ -759,6 +759,25 @@ function myDelete(idm, id) {
 
         break;
   
+    case "examiner":
+  
+    $("#ok").on("click", function () {
+
+      $.ajax({
+        type: "POST",
+        url: "asset/config/delete.php",
+        data: "&idm=" + idm + "&table=" + table,
+        success: function (msg) {
+          if (msg == 1) {
+            // setTimeout(' window.location = ""', 500);
+            location.reload()
+          }
+        },
+      });
+    });
+
+    break;
+  
   }
 
 }

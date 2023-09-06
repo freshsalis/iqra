@@ -1184,6 +1184,15 @@ class Test{
         }else echo mysqli_error(conn());
     }
 
+    public function deleteExaminer($idm){
+        $sql = 'delete from examiners where examiner_id="'.$idm.'"' ;
+        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+
+        if($q1){
+            echo 1;
+        }else echo mysqli_error(conn());
+    }
+
     public function getTestForm(){
        
         $r = '';

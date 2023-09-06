@@ -23,6 +23,9 @@ $question = new Question();
     elseif ($table =='exam'){
         $test ->deleteExam($idm);
     }
+    elseif ($table =='examiner'){
+        $test ->deleteExaminer($idm);
+    }
     elseif ($table =='student'){
         $student ->delete($idm);
     }

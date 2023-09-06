@@ -110,11 +110,11 @@ session_start();
     <div class="modal-dialog modal-md mdls" role="document">
         <div class="modal-content">
             <div class="modal-body">
-                <h4><span id="confirm">Are you sure you want to delete this Student?</span></h4>
+                <h4><span id="confirm">Are you sure you want to delete this examiner?</span></h4>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-md btn-danger" id="ok" data-dismiss="modal">Yes! Delete</button>
-                <a class="btn btn-md btn-info" href="viewStudent.php" id="del" >Close</a>
+                <button class="btn btn-md btn-danger" id="ok" >Yes! Delete</button>
+                <a class="btn btn-md btn-info" href="" id="del" >Close</a>
             </div>
         </div>
     </div>
