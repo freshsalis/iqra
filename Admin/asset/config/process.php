@@ -45,6 +45,9 @@ if($converted < strtotime('6/6/2025')){
                 case "paper":
                     $test ->addPaper();
                     break;
+                case "examiner":
+                    $test ->addExaminer();
+                    break;
                 case "exam":
                     $test ->addExam();
                     break;

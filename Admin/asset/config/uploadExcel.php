@@ -16,6 +16,7 @@
                         include("../classes/db.php");
 
                         $handle = fopen($_FILES['uploadFile']['tmp_name'], 'r');
+                        $handle2 = fopen($_FILES['uploadFile']['tmp_name'], 'r');
                         $i = 0;
 
                         //check paper type
@@ -25,7 +26,7 @@
                         if ($row['paper_type_id'] == 1) { 
                             $expectedColumns = [ "Question","Oprion 1"	,"Option 2",	"Option 3",	"Option 4",	"Answer",	"Type",	"Diagram"];
 
-                            $headerRow = fgetcsv($handle, 10000, ',');
+                            $headerRow = fgetcsv($handle2, 10000, ',');
 
     
                             
@@ -89,7 +90,7 @@
 
                             $expectedColumns = [ "Question","Mark 1"	,"Mark 2",	"Mark 3",	"Mark 4"];
 
-                            $headerRow = fgetcsv($handle, 10000, ',');
+                            $headerRow = fgetcsv($handle2, 10000, ',');
 
     
                             
@@ -125,7 +126,6 @@
                                                     <td>".$question."</td>
                                                     <td>".$mark1."</td>
                                                     <td>".$mark2."</td>
-                                                    <td>".$mark3."</td>
                                                     <td>".$mark3."</td>
                                                     <td>".$mark4."</td>
                                                 </tr>

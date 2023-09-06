@@ -131,6 +131,40 @@ class Test{
             echo 3; //some fields required
     }
 
+    public function addExaminer()
+    {
+        if ($_POST['name'] !='' && $_POST['paper']!='') {
+
+            $name = clean($_POST['name']);
+            $paper = clean($_POST['paper']);
+            $password = clean($_POST['password']);
+            $username= clean($_POST['username']);
+
+
+
+            $s1 = 'select * from examiners WHERE username="' . $username . '"';
+            $q1 = mysqli_query(conn(), $s1) or die(mysqli_error(conn()));
+
+            if (mysqli_num_rows($q1) > 0) {
+                echo 0; //test already exist
+            }
+            else {
+                $sql = "insert into examiners(name,username,password,paper_id) 
+                    values('$name','$username','$password','$paper')";
+                $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+
+                if ($q1) {
+                    echo 1;
+                } else {
+                    echo mysqli_error(conn());
+                }
+            }
+            echo mysqli_error(conn());
+
+        }else
+            echo 3; //some fields required
+    }
+
     public function getTestTable($class_id)
     {
         $class_name ='';
@@ -895,6 +929,34 @@ class Test{
 
     }
 
+    function getOtherPaperCombo($exam_id,$default = '')
+    {
+        $r = '<select name="paper" id="paper" class="col-md-12 form-control">';
+        $sql = "SELECT * FROM papers WHERE exam_id='".$exam_id."' AND paper_type_id=2 ORDER BY name";
+        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+        $sn = 0;
+
+        if (mysqli_num_rows($q1) > 0) {
+            while ($row = mysqli_fetch_assoc($q1)) {
+                $sn++;
+                $id = $row['paper_id'];
+                $name = $row['name'];
+
+                //check for the selected option
+                if ($default != '' && $default == $id) {
+                    $option = '<option value=' . $id . ' selected>' . $name . '</option>';
+                    $r .= $option;
+                } else {
+                    $option = '<option value=' . $id . '>' . $name . '</option>';
+                    $r .= $option;
+                }
+            }
+            return $r;
+        }
+
+
+    }
+
     function getPaperTypeCombo($default = '')
     {
         $r = '<select name="type" id="type" class="col-md-12 form-control">';
@@ -1239,6 +1301,67 @@ class Test{
         return $r;
     }
 
+    public function getExaminersForm($exam_id, $name=""){
+        
+        $r ='
+        <div class="modal fade" id="exam'.$exam_id.'" tabindex="-1" data-backdrop="static" role="dialog" aria-labelledby="delete">
+                <div class="modal-dialog modal-md mdls" role="document">
+                    <div class="modal-content">
+                        <div class="modal-heading">'.$name.'</div>
+                        <div class="modal-body">
+                            <div class="box-body">
+                                <div class="box box-info">
+                                    <div class="box-body">
+                                        <form class="examiner-form" role="form" id="examiner-form">
+                                            <div class="box-body">
+                                            <div class="input-group">
+                                            <span class="input-group-addon">Select Paper</span>
+                                                                            ';
+                                                $r.= $this->getOtherPaperCombo($exam_id);
+                                                $r.='
+                                                </select>
+                                                </div><br/>
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">Examiner Name </span>
+                                                    <input type="text" name="name" id="name" class="form-control" placeholder="">
+                                                </div>
+                                                <br/>
+                                            
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">Username</span>
+                                                    <input type="text" name="username" id="username" class="form-control" placeholder="Username">
+                                                </div><br/>
+                                                
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">Login Password:</span>
+                                                    <input type="number"  name="password" id="password" class="form-control" placeholder="*************">
+                                                </div><br>
+                                            
+                                            </div><!-- /input-group -->
+
+                                                        <br/>
+                                                        <input type="submit" id="submit-examiner" class="btn btn-primary form-control submit-examiner" rel="examiner" value="Submit" placeholder="">
+                                    </form>
+                                    </div><!-- /input-group -->
+                                    <br/>
+                                    <div class=" msg" id="msg"></div>
+
+                                </div><!-- /.box-body -->
+                            </div><!-- /.box -->
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-md btn-info" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+        ';
+
+   
+return $r;
+}
+
     public function getTestMenu($idm = '', $url)
     {
         $r = '
@@ -1324,7 +1447,7 @@ class Test{
         ';
         return $r;
     }
-    public function getPaperMenu($idm = '', $url,$paper)
+    public function getPaperMenu($idm = '', $url,$paper,$all ="")
     {
         $r = '
             <div class="box box-solid" style="height: 500px;;overflow:scroll;">
@@ -1363,7 +1486,23 @@ class Test{
                             <i class="glyphicon glyphicon-th-list"></i> ' . $name . ' ('.$type.')<span class="label label-primary pull-right"><span class="glyphicon glyphicon-chevron-right"></span></span></a></li>
                        ';
                 }
+            }
+            if ($all == "all") {
+                if ($paper == "all") {
+                    # code...
+                    $r .= '<br>
+                        <li class="active">
+                        <a href="' . $url. '?id=' . $idm . '&paper='.$all.' ">
 
+                            <i class="glyphicon glyphicon-th-list"></i> Cummulative Results<span class="label label-primary pull-right"><span class="glyphicon glyphicon-chevron-down"></span></span></a></li>
+                       ';
+                }else{
+                    $r .= '<br>
+                        <li class="">
+                            <a href="' . $url. '?id=' . $idm . '&paper='.$all.' ">
+                            <i class="glyphicon glyphicon-th-list"></i>Cummulative Results<span class="label label-primary pull-right"><span class="glyphicon glyphicon-chevron-right"></span></span></a></li>
+                       ';
+                }
             }
         } else
             $r .= ' No papers found';
@@ -1430,6 +1569,63 @@ class Test{
         return $r;
     }
 
+    public function getCaoscePaperMenu($idm = '', $url,$paper,$examiner_id)
+    {
+        $r = '
+            <div class="box box-solid" style="max-height: 500px;;overflow:scroll;">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Papers Allocated to Me</h3>
+                </div>
+                <div class="box-body no-padding">
+                    <ul class="nav nav-pills nav-stacked">
+                    ';
+        $sql = "SELECT p.*,e.name as examName,e.session,type_name FROM papers p 
+            INNER JOIN exam e ON e.exam_id=p.exam_id  
+            INNER JOIN paper_type t ON t.paper_type_id=p.paper_type_id
+            INNER JOIN examiners ex ON ex.paper_id = p.paper_id
+            WHERE ex.examiner_id='".$examiner_id."' AND t.paper_type_id =2 AND p.status='active'
+            ORDER BY exam_id DESC limit 50";
+        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+        $sn = 0;
+
+        if (mysqli_num_rows($q1) > 0) {
+            while ($row = mysqli_fetch_assoc($q1)) {
+                $sn++;
+                $id = $row['paper_id'];
+                $name = $row['name'];
+                $type = $row['type_name'];
+                if ($id == $paper) {
+                    $r .= '
+                        <li class="active">
+                        <h4>
+                            <a href="' . $url. '?p='.sha1($id).' ">
+                                <i class="glyphicon glyphicon-th-list"></i> 
+                                ' . $name . ' ('.$type.')<span class="label label-danger pull-right"> 
+                                <span class="glyphicon glyphicon-chevron-right"></span></span>
+                            </a>
+                        </h4></li>
+                       ';
+                } else {
+                    $r .= '
+                        <li class="">
+                           <h4> 
+                           <a href="' . $url. '?p='.sha1($id).' ">
+                            <i class="glyphicon glyphicon-th-list"></i> ' . $name . ' ('.$type.')<span class="label label-primary pull-right"><span class="glyphicon glyphicon-chevron-right"></span></span></h4></a></li>
+                       ';
+                }
+
+            }
+        } else
+            $r .= ' No papers found';
+        $r .= '
+                    </ul>
+                </div><!-- /.box-body -->
+        </div><!-- /. box -->
+
+        ';
+        return $r;
+    }
+
     public function isPaperTaken($paper_id,$student_id)  {
         $sql_taken = "select * FROM testscore WHERE paper_id='".$paper_id."'  AND stdid='".$student_id."'";
             $query_taken = mysqli_query(conn(), $sql_taken) or die(mysqli_error(conn()));
@@ -1439,6 +1635,7 @@ class Test{
 
             
     }
+
     public function getBatchMenu($idm='' , $url,$batch=0)
     {
         $r = '
@@ -1496,6 +1693,95 @@ class Test{
 
         ';
         return $r;
+    }
+
+    public function getExaminersTable($exam_id)
+    {
+        $class_name ='';
+        $r = '';
+        $r .= '
+
+
+            <div class="box-body">
+            <button data-toggle="modal" data-target="#exam'.$exam_id.'" data-whatever="@mdo" test='.$exam_id.' id="batch_del_student" batch="" class="btn btn-md btn-primary pull-right"> Add New Examiner <span class="glyphicon glyphicon-plus"></span> </button>
+            <br><br/>
+
+            <table id="example1" class="table table-bordered table-striped table-responsive">
+                <thead>
+                <tr>
+                    <th>SN</th>
+                    <th>Name</th>
+                    <th>Username</th>
+                    <th>Paper</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>';
+
+                $sql = "SELECT e.*,p.name as paperName,ex.name as examName FROM examiners e 
+                        INNER JOIN papers p ON p.paper_id=e.paper_id 
+                        INNER JOIN exam ex ON ex.exam_id = p.exam_id
+                        WHERE p.exam_id='".$exam_id."' 
+                ORDER BY name";
+        
+        
+        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+        $sn = 0;
+
+        if (mysqli_num_rows($q1) > 0) {
+            while ($row = mysqli_fetch_assoc($q1)) {
+                $sn++;
+                $id = $row['examiner_id'];
+                $class_name = $row['examName'];
+
+                $name = $row['name'];
+                $username = $row['username'];
+                $paper = $row['paperName'];
+
+                $r .= '<tr>
+						<td>' . $sn . '</td>
+						<td>' . $name . '</td>
+						<td>' . $username . ' </td>
+						<td>' . $paper . ' </td>
+						<td>
+							<a title="edit" href="javascript:void(0)" rel="student" class="btn btn-primary btn-sm edit" data-toggle="modal" data-target="#addstudent" data-whatever="@mdo" onclick="mode(' . $id . ','.$exam_id.');">
+							    <span class="glyphicon glyphicon-pencil"></span>
+							 </a>
+
+
+							<a type="button" title="delete" class="btn btn-danger btn-sm delete"  rel="student" data-toggle="modal" data-target="#delete" data-whatever="@mdo" onclick="myDelete(' . $id . ','.$exam_id.');"><span class="glyphicon glyphicon-trash"></span>
+							</a>
+
+						</td>
+					</tr>
+
+				';
+            }
+                        echo '<div class="box-header with-border">
+                        <h3 class="box-title">'.$class_name.'</h3>
+                      </div>';
+
+        }
+        
+        $r .= '
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th>SN</th>
+                    <th>Student Name</th>
+                    <th>Username</th>
+                    <th>Department</th>
+                    <th>Action</th>
+                </tr>
+                </tfoot>
+            </table>
+            </div>
+            '.$this->getExaminersForm($exam_id,$class_name).'
+
+        ';
+
+        return $r;
+
     }
 
     public function getActiveTestMenu($idm = '', $url)

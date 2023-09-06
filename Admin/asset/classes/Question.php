@@ -374,126 +374,169 @@ class Question {
 
     }
 
-    public function getResultTable($test_id,$batch){
+    public function getResultTable($test_id,$paper_id){
         $class_name ='';
         $r = '';
-        $r .= '
+        
+        if ($paper_id === 'all') {
+            // echo $batch;die();
+            $colNames = [];
+            $colIds = [];
+            $r = '
+                <div class="box-body">
+                <table id="example1" class="table table-bordered table-striped table-responsive">
+                   ';
+            
+                //    get table header
+                $sql_headers= "select p.*,e.name as examName FROM papers p INNER JOIN exam e ON e.exam_id=p.exam_id WHERE p.exam_id='".$test_id."'";
+                $query_headers = mysqli_query(conn(), $sql_headers) or die(mysqli_error(conn()));
 
+                $numrows=mysqli_num_rows($query_headers);
+                $examName = "";
+                
+                // die($numrows);
+                if($numrows > 0){
+                    while ($row = mysqli_fetch_assoc($query_headers)) {
+                        $colNames[] = $row['name'];
+                        $colIds[] = $row['paper_id'];
+                        $examName = $row['examName'];
+                    }
+                }
 
-            <div class="box-body">
-            <a href="viewResult.php?id='.$test_id.'&action=force&batch='.$batch.'"class="btn btn-md btn-danger " id="">Force Submit <span class="glyphicon glyphicon-upload"></span></a>
-            <br><br/>
-            <table id="example1" class="table table-bordered table-striped table-responsive">
-                <thead>
-                <tr>
-                    <th>SN</th>
-                    <th>Student Names</th>
-                    <th>Matric No</th>
-                    <th>View Attempts</th>
-                    <th>Right Answered</th>
-                    <th>Scores*Weight</th>
+                $r .= ' <thead>
+                        <tr>
+                            <th>SN</th>
+                            <th>Student Names</th>
+                            <th>Matric No</th>';
+
+                for ($i=0; $i <  count($colIds); $i++) { 
+                    $r .="<th>".$colNames[$i]."</th>";
+                }
+
+                $r .= ' 
+                    <th>Cumm. Score</th>
                 </tr>
                 </thead>
                 <tbody>';
-        if ($batch === 'all') {
-            // echo $batch;die();
 
             $Q = ' SELECT *
-                FROM testscore
-                INNER JOIN schedule_student
-                INNER JOIN attendance a ON a.stdid = schedule_student.stdid
-                INNER JOIN test
-                ON testscore.stdid = schedule_student.stdid
-                AND testscore.testid = test.test_id
-                WHERE testscore.testid = "'.$test_id.'" ORDER BY reg_no';
+                FROM schedule_student s
+                WHERE exam_id = "'.$test_id.'" ORDER BY reg_no';
+
+                $q1 = mysqli_query(conn(), $Q) or die(mysqli_error(conn()));
+
+                $sn = 0;
+                if (mysqli_num_rows($q1) >0) {
+
+                    while ($row = mysqli_fetch_assoc($q1)) {
+                        $sn++;
+                        $stdname = $row['surname']." ".$row['othername'];
+                        $regno = $row['reg_no'];
+                        $user_id = $row['stdid'];
+                        // $test_id = $row['test_id'];
+                        $total = 0;
+                        $r .= "<tr>
+                                <td>".$sn."</td>
+                                <td>".$stdname."</td>
+                                <td>".$regno."</td>
+                            ";
+                        for ($i=0; $i <  count($colIds); $i++) { 
+                            $score = $this->studentPaperResult($user_id,$colIds[$i]);
+                            $total +=$score;
+                            $r .="<td>".$score."</td>";
+                        }
+                        $r .="<td>".$total."</td></tr>";
+
+                    }
+                    echo '<div class="box-header with-border">
+                                <h3 class="box-title">'.$examName.' results.</h3>
+                                    <a href="../testExcel.php?tid='.$test_id.'&paper='.$paper_id.'"class="btn btn-md btn-primary pull-right" id="download" rel="'.$class_name.'">Download Results <span class="glyphicon glyphicon-download-alt"></span></a>
+                            </div>';
+                }
+                $r .= '
+                        </tbody>
+                    </table>
+                    </div>
+                ';
         }else{
+            $r .= '
+                <div class="box-body">
+                <a href="viewResult.php?id='.$test_id.'&action=force&paper='.$paper_id.'"class="btn btn-md btn-danger " id="">Force Submit <span class="glyphicon glyphicon-upload"></span></a>
+                <br><br/>
+                <table id="example1" class="table table-bordered table-striped table-responsive">
+                    <thead>
+                    <tr>
+                        <th>SN</th>
+                        <th>Student Names</th>
+                        <th>Matric No</th>
+                        <th>View Attempts</th>
+                        <th>Score</th>
+                    </tr>
+                    </thead>
+                    <tbody>';
+
             $Q = ' SELECT *
-                FROM testscore
-                INNER JOIN schedule_student
-                INNER JOIN attendance a ON a.stdid = schedule_student.stdid
-                INNER JOIN test
-                ON testscore.stdid = schedule_student.stdid
-                AND testscore.testid = test.test_id
-                WHERE testscore.testid = '.$test_id.' AND batch="'.$batch.'" ORDER BY reg_no';
+                FROM testscore t
+                INNER JOIN schedule_student s ON s.stdid=t.stdid
+                INNER JOIN papers p ON p.paper_id = t.paper_id
+                WHERE t.paper_id = "'.$paper_id.'" ORDER BY reg_no';
+
+                $q1 = mysqli_query(conn(), $Q) or die(mysqli_error(conn()));
+
+                $sn = 0;
+                if (mysqli_num_rows($q1) >0) {
+
+                    while ($row = mysqli_fetch_assoc($q1)) {
+                        $sn++;
+                        $stdname = $row['surname']." ".$row['othername'];
+                        $answer = $row['right_answered'];
+                        //$answer = (100.0/$num_quest)*$row['right_answered'];
+                        $test_title = $row['name'];
+                        $user = $row['reg_no'];
+                        $user_id = $row['stdid'];
+                        // $test_id = $row['test_id'];
+                        $num_quest = $row['question_per_stud'];
+                    
+                        $r .= "<tr>
+                                <td>".$sn."</td>
+                                <td>".$stdname."</td>
+                                <td>".$user."</td>
+                                <td><a href='./view_attempts.php?user=".$user_id."&paper=".$paper_id."' target='_blank' class='btn btn-default'>View Attempts</a></td>
+                                <td>".round($answer,2)."/".$num_quest."</td>
+                        </tr>";
+
+
+                    }
+                    echo '<div class="box-header with-border">
+                                <h3 class="box-title">'.$test_title.' results.</h3>
+                                    <a href="../testExcel.php?tid='.$test_id.'&paper='.$paper_id.'"class="btn btn-md btn-primary pull-right" id="download" rel="'.$class_name.'">Download Results <span class="glyphicon glyphicon-download-alt"></span></a>
+                            </div>';
+                }
+                $r .= '
+                        </tbody>
+                    </table>
+                    </div>
+                ';
         }
         
-        $q1 = mysqli_query(conn(), $Q) or die(mysqli_error(conn()));
-
-
-        $sn = 0;
-        if (mysqli_num_rows($q1) >0) {
-
-            // find the total number of question in a particular test to get % d stud get from the test
-            $s= 'select * from question q where q.test_id = '.$test_id.' ';
-            $sq = mysqli_query(conn(), $s) or die(mysqli_error(conn()));
-
-            //print reult table
-
-            while ($row = mysqli_fetch_assoc($q1)) {
-                $sn++;
-                $stdname = $row['surname']." ".$row['othername'];
-                $answer = $row['right_answered'];
-                //$answer = (100.0/$num_quest)*$row['right_answered'];
-                $test_title = $row['name'];
-                $user = $row['reg_no'];
-                $user_id = $row['stdid'];
-                $test_id = $row['test_id'];
-                $num_quest = $row['question_per_stud'];
-                $enable = $row['earnable_score'];
-                $weight = $row['weight'];
-
-
-
-                $r .= "<tr>
-						<td>".$sn."</td>
-						<td>".$stdname."</td>
-						<td>".$user."</td>
-						<td><a href='./view_attempts.php?user=".$user_id."&test=".$test_id."' target='_blank' class='btn btn-default'>View Attempts</a></td>
-						<td>".round($answer,2)."/".$num_quest."</td>
-						<td>".(round($answer,2) *$weight)."</td>
-
-				</tr>";
-
-
-            }
-            echo '<div class="box-header with-border">
-                        <h3 class="box-title">'.$test_title.' results (Batch: '.$batch.')</h3>
-                            <a href="../testExcel.php?tid='.$test_id.'&batch='.$batch.'"class="btn btn-md btn-primary pull-right" id="download" rel="'.$class_name.'">Download Results <span class="glyphicon glyphicon-download-alt"></span></a>
-                      </div>';
-        }
-        else {
-            $sql = "SELECT * FROM test WHERE test_id='" . $test_id . "' ORDER BY name limit 1";
-            $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
-            if (mysqli_num_rows($q1) > 0) {
-                $row = mysqli_fetch_assoc($q1);
-                $class = $row['name'];
-                echo '<div class="box-header with-border">
-                        <h3 class="box-title">'.$class.'</h3>
-                      </div>';
-
-
-
-            }
-        }
-
-        $r .= '
-                </tbody>
-                <tfoot>
-                <tr>
-                <th>SN</th>
-                <th>Student Names</th>
-                <th>Matric No</th>
-                <th>View Attempts</th>
-                <th>Right Answered</th>
-                <th>Scores*Weight</th>
-                </tr>
-                </tfoot>
-            </table>
-            </div>
-        ';
-
         return $r;
 
+    }
+
+    function studentPaperResult($stdid,$paper_id) {
+        $q = 'SELECT *
+                FROM testscore 
+                WHERE paper_id = "'.$paper_id.'" AND stdid="'.$stdid.'" limit 1';
+
+                $q1 = mysqli_query(conn(), $q) or die(mysqli_error(conn()));
+                if (mysqli_num_rows($q1) >0) {
+
+                    $row = mysqli_fetch_assoc($q1);
+
+                    return $row['right_answered'];
+                }else{
+                    return 0;
+                }
     }
     public function getAnalysisTable($class_id){
         $class_name ='';
@@ -660,16 +703,15 @@ class Question {
         return $r;
 
     }
-    public function viewAttempts($user,$test_id){
+    public function viewAttempts($user,$paper_id){
         $class_name ='';
         $r = '';
         
-        $Q = 'SELECT * FROM testscore
-                INNER JOIN schedule_student
-                INNER JOIN test
-                ON testscore.stdid = schedule_student.stdid
-                AND testscore.testid = test.test_id
-                WHERE testscore.testid = '.$test_id.' AND schedule_student.stdid="'.$user.'"';
+        $Q = 'SELECT *
+            FROM testscore t
+            INNER JOIN schedule_student s ON s.stdid=t.stdid
+            INNER JOIN papers p ON p.paper_id = t.paper_id
+            WHERE t.paper_id = '.$paper_id.' AND s.stdid="'.$user.'"';
         $q1 = mysqli_query(conn(), $Q) or die(mysqli_error(conn()));
 
 
@@ -690,8 +732,9 @@ class Question {
                 $test_title = $row['name'];
                 $user = $row['reg_no'];
                 $user_id = $row['stdid'];
-                $test_id = $row['test_id'];
+                // $test_id = $row['test_id'];
                 $num_quest = $row['question_per_stud'];
+                $paper_type_id = $row['paper_type_id'];
 
                 $r .= '
                 <div class="col-md-3">
@@ -713,10 +756,30 @@ class Question {
             </div>
                 ';
         }
-        
+
+        if ($paper_type_id == 1) {
+            
             $sql = "SELECT * FROM question q INNER JOIN sub_question s
             ON q.question_id = s.question_id
-            WHERE s.stud_id = '$user_id' AND q.test_id = '$test_id'";
+            WHERE s.stud_id = '$user_id' AND q.paper_id = '$paper_id'";
+            $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+            $n = 0;
+           
+            if (mysqli_num_rows($q1) > 0) {
+                echo '
+                <div class="col-md-9" >
+                    <div class="box box-solid" style="padding:20px;">';
+                  
+                while ($row = mysqli_fetch_assoc($q1)) {
+                    $n ++;
+                    echo $this->questionAttempts($user_id,$paper_id,$row['question_id'],$n,$paper_type_id);
+                }                                      
+                    echo '</div></div>';
+            }  
+        }else{
+        
+            $sql = "SELECT * FROM other_question q 
+            WHERE q.paper_id = '$paper_id'";
             $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
             $n = 0;
             if (mysqli_num_rows($q1) > 0) {
@@ -726,22 +789,24 @@ class Question {
                   
                 while ($row = mysqli_fetch_assoc($q1)) {
                     $n ++;
-                    echo $this->questionAttempts($user_id,$test_id,$row['question_id'],$n);
+                    echo $this->questionAttempts($user_id,$paper_id,$row['question_id'],$n,$paper_type_id);
                 }                                      
-                    echo '</div></div>';
+                echo '</div></div>';
             }        
 
-        
+        }
 
         return $r;
 
     }
-    public function questionAttempts($user_id,$test_id,$qid,$n){
+    public function questionAttempts($user_id,$test_id,$qid,$n,$type){
         $class_name ='';
         $r = '';
+        if ($type == 1) {
+            # code...
             $sql = "SELECT * FROM question q INNER JOIN test_attempt t
             ON q.question_id = t.quid
-            WHERE t.stdid = '$user_id' AND q.test_id = '$test_id' AND question_id='$qid' limit 1";
+            WHERE t.stdid = '$user_id' AND q.paper_id = '$test_id' AND question_id='$qid' limit 1";
             $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));            
             if (mysqli_num_rows($q1) > 0) {
                 
@@ -767,7 +832,7 @@ class Question {
             }else{
                 $sql = "SELECT * FROM question q INNER JOIN sub_question s
                 ON q.question_id = s.question_id
-                WHERE s.stud_id = '$user_id' AND q.test_id = '$test_id' AND q.question_id='$qid' limit 1";
+                WHERE s.stud_id = '$user_id' AND q.paper_id = '$test_id' AND q.question_id='$qid' limit 1";
                 $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));            
                 if (mysqli_num_rows($q1) > 0) {
                 
@@ -792,6 +857,41 @@ class Question {
                     }
                 }
             }    
+        }else{
+            $sql = "SELECT * FROM other_question q INNER JOIN test_attempt t
+            ON q.question_id = t.quid
+            WHERE t.stdid = '$user_id' AND q.paper_id = '$test_id' AND question_id='$qid' limit 1";
+            $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));            
+            if (mysqli_num_rows($q1) > 0) {
+                
+                while ($row = mysqli_fetch_assoc($q1)) {
+                    echo "<p><p>".$n.". ".$row['question_name']."</p>
+                       
+                        <div class='pull-right'>
+                            <div class='text-danger'>Score : ".$row['ans']."</div>
+                        </div>
+                        <hr/>    
+                    </p>";
+                }
+            }else{
+                $sql = "SELECT * FROM other_question q 
+                WHERE  q.paper_id = '$test_id' AND q.question_id='$qid' limit 1";
+                $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));            
+                if (mysqli_num_rows($q1) > 0) {
+                
+                    while ($row = mysqli_fetch_assoc($q1)) {
+                        echo "<p><p>".$n.". ".$row['question_name']."</p>
+                           
+                            <div class='pull-right'>
+                                <div class='text-danger'>Selected Option: N/A</div>
+                            </div>
+                            <hr/>    
+                        </p>";
+                    }
+                }
+            }    
+        }
+           
 
         
 
@@ -1312,69 +1412,110 @@ class Question {
         return $r;
     }
 
-    public function forceSubmit($test_id,$batch){    
-        if ($batch == 'all') {
-            $Q = 'SELECT DISTINCT(schedule_student.stdid),test.* FROM schedule_student
-                    INNER JOIN test
-                        ON schedule_student.test_id = test.test_id
-                        INNER JOIN sub_question sq ON sq.stud_id = schedule_student.stdid
-                        WHERE schedule_student.stdid 
-                            NOT IN (SELECT schedule_student.stdid FROM testscore ts INNER JOIN test t
-                            ON t.test_id = ts.testid INNER JOIN schedule_student  
-                                    ON schedule_student.stdid = ts.stdid
-                            WHERE t.test_id = "'.$test_id.'") 
-                        AND test.test_id = "'.$test_id.'"
-                ';
-        } else{   
-        $Q = 'SELECT DISTINCT(schedule_student.stdid),test.* FROM schedule_student
-                    INNER JOIN test
-                        ON schedule_student.test_id = test.test_id
-                        INNER JOIN sub_question sq ON sq.stud_id = schedule_student.stdid
-                        WHERE schedule_student.stdid 
-                            NOT IN (SELECT schedule_student.stdid FROM testscore ts INNER JOIN test t
-                            ON t.test_id = ts.testid INNER JOIN schedule_student  
-                                    ON schedule_student.stdid = ts.stdid
-                            WHERE t.test_id = "'.$test_id.'" AND batch="'.$batch.'") 
-                        AND test.test_id = "'.$test_id.'"   AND batch="'.$batch.'"
-                ';
-            }
-        $q1 = mysqli_query(conn(), $Q) or die(mysqli_error(conn()));
-        // echo mysqli_num_rows($q1);
-        if (mysqli_num_rows($q1) >0) {
-            while ($row = mysqli_fetch_assoc($q1)) {                
-                $stdid = $row['stdid'];
-                $test_id = $row['test_id'];
-                $num_quest = $row['question_per_stud'];
+    public function forceSubmit($exam_id,$paper_id){
+        $sql_check = "select * FROM papers WHERE paper_id='".$paper_id."'";
+        $query_check = mysqli_query(conn(), $sql_check) or die(mysqli_error(conn()));
 
-                $sql = 'select * from test_attempt t
-                INNER JOIN question q 
-                ON quid = question_id
-                where stdid = "'.$stdid.'" ';
-                $correct =0;
-                $wrong = 0;
-                $unanswerered =0;
-                $query = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
-                // // echo mysqli_num_rows($query);
-                if (mysqli_num_rows($query) >0) {
-                    while ($row2 = mysqli_fetch_assoc($query)) {
-                        $ans = $row2['ans'];
-                        $right = $row2['answer'];
-                        if($ans == $right){
-                            $correct++;
-                        }else{
-                            $wrong++;
+        $numrows=mysqli_fetch_assoc($query_check);
+        $type = $numrows['paper_type_id'];
+
+        if ($type == 1) {
+            if ($paper_id != 'all') {
+                $Q = 'SELECT DISTINCT(schedule_student.stdid),p.* FROM schedule_student
+                        INNER JOIN exam e ON schedule_student.exam_id = e.exam_id
+                        INNER JOIN sub_question sq ON sq.stud_id = schedule_student.stdid
+                        INNER JOIN papers  p ON p.paper_id = sq.paper_id
+                        WHERE schedule_student.stdid 
+                        NOT IN (SELECT schedule_student.stdid FROM testscore ts INNER JOIN papers p
+                                ON p.paper_id = ts.paper_id INNER JOIN schedule_student  
+                                ON schedule_student.stdid = ts.stdid
+                                WHERE ts.paper_id = "'.$paper_id.'") 
+                        AND sq.paper_id = "'.$paper_id.'"
+                    ';
+    
+                    $q1 = mysqli_query(conn(), $Q) or die(mysqli_error(conn()));
+                // echo mysqli_num_rows($q1);
+                if (mysqli_num_rows($q1) >0) {
+                    while ($row = mysqli_fetch_assoc($q1)) {  
+                        $correct =0;
+                        $wrong = 0;
+                        $unanswerered =0;              
+                        $stdid = $row['stdid'];
+                        $num_quest = $row['question_per_stud'];
+        
+                        $sql = 'select * from test_attempt t
+                        INNER JOIN question q 
+                        ON quid = question_id
+                        where stdid = "'.$stdid.'" AND q.paper_id="'.$paper_id.'"';
+                    
+                        $query = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+                        // // echo mysqli_num_rows($query);
+                        if (mysqli_num_rows($query) >0) {
+                            while ($row2 = mysqli_fetch_assoc($query)) {
+                                $ans = $row2['ans'];
+                                $right = $row2['answer'];
+                                if($ans == $right){
+                                    $correct++;
+                                }else{
+                                    $wrong++;
+                                }
+                            }
                         }
+                        $unanswerered = $num_quest-($correct+$wrong);
+                        $submitted_at = date('Y-m-d h:i:s');
+                        $sql_submit = 'INSERT INTO testscore (stdid,paper_id,right_answered,wrong_answer,unanswered,date_time)
+                                        VALUES ("'.$stdid.'","'.$paper_id.'", "'.$correct.'","'.$wrong.'","'.$unanswerered.'","'.$submitted_at.'")';    
+                        $query_submit = mysqli_query(conn(), $sql_submit) or die(mysqli_error(conn()));
+                        
                     }
+                    
                 }
-                $unanswerered = $num_quest-($correct+$wrong);
-                $submitted_at = date('Y-m-d h:i:s');
-                $sql_submit = 'INSERT INTO testscore (stdid,testid,right_answered,wrong_answer,unanswered,date_time)
-                                VALUES ("'.$stdid.'","'.$test_id.'", "'.$correct.'","'.$wrong.'","'.$unanswerered.'","'.$submitted_at.'")';    
-                $query_submit = mysqli_query(conn(), $sql_submit) or die(mysqli_error(conn()));
+            }
+        }else{
+            if ($paper_id != 'all') {
+                $Q = 'SELECT DISTINCT(schedule_student.stdid),p.* FROM schedule_student
+                        INNER JOIN exam e ON schedule_student.exam_id = e.exam_id
+                        INNER JOIN papers  p ON p.exam_id = e.exam_id
+                        INNER JOIN other_question o ON o.paper_id=p.paper_id
+                        WHERE schedule_student.stdid 
+                        NOT IN (SELECT schedule_student.stdid FROM testscore ts INNER JOIN papers p
+                                ON p.paper_id = ts.paper_id INNER JOIN schedule_student  
+                                ON schedule_student.stdid = ts.stdid
+                                WHERE ts.paper_id = "'.$paper_id.'") 
+                        AND o.paper_id = "'.$paper_id.'"
+                    ';
+    
+                    $q1 = mysqli_query(conn(), $Q) or die(mysqli_error(conn()));
+            // echo mysqli_num_rows($q1);
+            if (mysqli_num_rows($q1) >0) {
+                while ($row = mysqli_fetch_assoc($q1)) {  
+                    $correct =0;
+                    $wrong = 0;
+                    $unanswerered =0;              
+                    $stdid = $row['stdid'];
+                    $num_quest = $row['question_per_stud'];
+    
+                    $sql2="select SUM(ans) as totalScore from test_attempt INNER JOIN other_question o
+                        ON o.question_id=quid  WHERE paper_id='".$paper_id."' AND stdid='".$stdid."'";
+                    $response2=mysqli_query(conn(), $sql2) or die(mysqli_error(conn()));
+                    $num2 = mysqli_num_rows($response2);
+                    $result=mysqli_fetch_assoc($response2);
+
+                    $correct = doubleval($result['totalScore']);
+                    
+                    $unanswerered = $num_quest-($correct+$wrong);
+                    $submitted_at = date('Y-m-d h:i:s');
+                    $sql_submit = 'INSERT INTO testscore (stdid,paper_id,right_answered,wrong_answer,unanswered,date_time)
+                                    VALUES ("'.$stdid.'","'.$paper_id.'", "'.$correct.'","'.$wrong.'","'.$unanswerered.'","'.$submitted_at.'")';    
+                    $query_submit = mysqli_query(conn(), $sql_submit) or die(mysqli_error(conn()));
+                    
+                }
                 
             }
-            
-        }
+            }
+        }  
+        
+        
     }
 
 

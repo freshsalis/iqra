@@ -37,7 +37,7 @@ $exam = $_POST['exam'];
 $number = $_POST['number'];
 $venue = strtoupper($_POST['venue']);
 
-$stmt = $con->prepare('SELECT name FROM test WHERE test_id = :exam ');
+$stmt = $con->prepare('SELECT name FROM exam WHERE exam_id = :exam ');
     $stmt->bindParam(':exam', $exam);
     $stmt->execute();
     $count = $stmt->rowCount();

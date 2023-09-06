@@ -2,28 +2,32 @@
 /**
  * Created by PhpStorm.
  * User: freshsalis
- * Date: 12/12/2017
- * Time: 1:58 PM
+ * Date: 12/9/2017
+ * Time: 4:28 PM
  */
 session_start();
 
-if (!$_SESSION['adminId']) {
+    if (!$_SESSION['adminId']) {
     header('Location:adminLogin.php');
 }
-include 'asset/classes/Question.php';
-include 'asset/classes/Test.php';
-include 'asset/classes/User.php';
-$userid= $_SESSION['adminId'];
-$pre = $_SESSION['pre'];
-$user = new User();
+    include 'asset/classes/Test.php';
+    include 'asset/classes/Student.php';
+    include 'asset/classes/User.php';
+    $userid= $_SESSION['adminId'];
+    $pre = $_SESSION['pre'];
+    $user = new User();
 
-$question = new Question();
-$test = new Test();
-$idm =0;
-if(isset($_GET['id']))
-    $idm = $_GET['id'];
+    $test = new Test();
+    $student = new Student();
+    $idm =0;
+    $batch = 0;
+    if(isset($_GET['batch'])){
+        $batch = $_GET['batch'];
+    }
+    if(isset($_GET['id']))
+     $idm = $_GET['id'];
 
-    echo $user->getHeader();
+    echo  $user->getHeader();
 ?>
     <!-- Left side column. contains the logo and sidebar -->
     <aside class="main-sidebar">
@@ -33,38 +37,42 @@ if(isset($_GET['id']))
         <!-- /.sidebar -->
     </aside>
 
-    <!-- Right side column. Contains the navbar and content of the page -->
-    <div class="content-wrapper">
-        <!-- Content Header (Page header) -->
-        <section class="content-header">
-            <h1>
-               VIEW ATTEMPTS
-            </h1>
-            <ol class="breadcrumb">
-                <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-                <li class="active">Result</li>
-                <li class="active">View Attempts</li>
-            </ol>
-        </section>
-        <section class="content">
-            <div class="row">
-                <!-- /.col -->
-                <div class="col-md-12">
+<!-- Right side column. Contains the navbar and content of the page -->
+<div class="content-wrapper">
+<!-- Content Header (Page header) -->
+    <section class="content-header">
+        <h1>
+            Examiners<small>Module</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li class="active">Exams</li>
+            <li class="active">Examiners</li>
+        </ol>
+    </section>
 
-                    <div class="">
-                        <!-- /.box-header -->
-                        <?php
-                        echo $question ->viewAttempts($_GET['user'],$_GET['paper']);
-                        ?>
+<!-- Main content -->
+<section class="content">
+<div class="row">
+<div class="col-md-3">
+    <div class="box box-solid">
+        <?php
+            echo $test ->getExamMenu($idm,'?id=','examiners');
+        ?>
+    </div><!-- /. box -->
+</div><!-- /.col -->
 
-                    </div><!-- /. box -->
+<div class="col-md-9">
+<div class="box box-primary">
+<!-- /.box-header -->
+    <?php
+        echo $test ->getExaminersTable($idm,'');
+    ?>
 
-                </div>
-            </div><!-- /.col -->
-    </div><!-- /.row -->
-    </section><!-- /.content -->
-
-    <!-- Main content -->
+</div><!-- /. box -->
+</div><!-- /.col -->
+</div><!-- /.row -->
+</section><!-- /.content -->
 </div><!-- /.content-wrapper -->
 <footer class="main-footer">
     <div class="pull-right hidden-xs">
@@ -77,40 +85,36 @@ if(isset($_GET['id']))
 <!------------------------------------- Default modal --------------------------------------------------->
 <div class="modal fade modal-default" id="addstudent" tabindex="-1" role="dialog" aria-labelledby="addstudent1">
 
+    <!-- DELETE BATCH STUDENTS -->
     <div class="modal-dialog modal-md mdls" role="document">
-        <div class="modal-content">
-            <div class="modal-header"><h4><b>Edit Test</b></h4></div>
-            <div class="modal-body">
-                <div ID="alert1"></div>
-                <div id="editbody"></div>
-                <div class="myclass"></div>
-
-            </div>
-            <div class="modal-footer">
-                <div class="col-sm-10 col-sm-offset-2">
-                    <button class="btn btn-md btn-primary" type="submit"  id="update">Update</button>
-                    <button class="btn btn-md btn-danger" data-dismiss="modal">Close</button>
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h4><span id="confirm">Create New Paper</span></h4>
+                    <?php echo $test->getPaperForm(); ?>
+                <div class="modal-footer">
+                    <button class="btn btn-md btn-info" data-dismiss="modal">Close</button>
                 </div>
             </div>
-        </div>
-
-
+    </div>
     </div>
 </div>
 <!------------------------------------- Delete modal --------------------------------------------------->
 <div class="modal fade" id="delete" tabindex="-1" data-backdrop="static" role="dialog" aria-labelledby="delete">
-    <div class="modal-dialog modal-sm mdls" role="document">
+    <div class="modal-dialog modal-md mdls" role="document">
         <div class="modal-content">
             <div class="modal-body">
-                <small><b><span id="confirm">Are you sure you want to delete this Test?</span></b></small>
+                <h4><span id="confirm">Are you sure you want to delete this Student?</span></h4>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-md btn-primary" id="ok" data-dismiss="modal">OK</button>
-                <a class="btn btn-md btn-danger" href="viewQuestion.php" id="del" >Close</a>
+                <button class="btn btn-md btn-danger" id="ok" data-dismiss="modal">Yes! Delete</button>
+                <a class="btn btn-md btn-info" href="viewStudent.php" id="del" >Close</a>
             </div>
         </div>
     </div>
 </div>
+
+<!-- DELETE BATCH STUDENTS -->
+
 
 <?php
 echo $user->getPasswordModal($userid);
@@ -123,7 +127,6 @@ echo $user->getPasswordModal($userid);
 <script src="plugins2/datatables/jquery.dataTables.js" type="text/javascript"></script>
 <script src="plugins2/datatables/dataTables.bootstrap.js" type="text/javascript"></script>
 <!-- SlimScroll -->
-
 
 <script src="dist/js/app.min.js" type="text/javascript"></script>
 

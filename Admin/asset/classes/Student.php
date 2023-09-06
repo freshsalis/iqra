@@ -147,6 +147,7 @@ class Student{
         return $r;
 
     }
+
     public function deleteBatchStudent($name,$password,$test_id,$batch)
     {
         $class_name ='';
@@ -182,6 +183,137 @@ class Student{
 
     }
 
+    function searchStudent($paper_id,$regno)  {
+
+        $sql1 = "SELECT * FROM schedule_student s INNER JOIN exam e ON e.exam_id = s.exam_id
+                INNER JOIN papers p ON p.exam_id=e.exam_id WHERE
+                p.paper_id='".$paper_id."' AND  reg_no='".$regno."' LIMIT 1";
+        $q11 = mysqli_query(conn(), $sql1) or die(mysqli_error(conn()));
+        $sn = 0;
+        $aid = 0;
+        $r = '';
+        if (mysqli_num_rows($q11) > 0) {
+            $row1 = mysqli_fetch_assoc($q11);
+            $student = $row1['stdid'];
+            echo '<h3>'.$row1['surname'].' '.$row1['othername'].' ('.$regno.')</h3>';
+            // check already graded
+            $sel = 'SELECT * FROM testscore WHERE stdid="'.$student.'" AND paper_id="'.$paper_id.'"';
+            $check = mysqli_query(conn(), $sel) or die(mysqli_error(conn()));
+            $r ='';
+            if(mysqli_num_rows($check)>0){
+                $rowScore = mysqli_fetch_assoc($check);
+                echo '
+                    <h3 class=" panel panel-info ">Student was already graded and his total score is:
+                        <b id="" class="text-danger">'.$rowScore['right_answered'].'</b></h3>
+                    <br>';
+
+                return;
+            }
+
+
+            $sql = "SELECT * FROM other_question o INNER JOIN papers p ON  p.paper_id=o.paper_id where
+            p.paper_id='".$paper_id."' AND o.paper_id='".$paper_id."'    ORDER BY name";
+            $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+            $sn = 0;
+
+            $r .= '
+                    <div class="col-md-10">
+                    <table class="table table-bordered" text-left>
+                    <thead>
+                    <tr>
+                        <th>SN</th>
+                        <th>Question</th>
+                        <th>Mark 1</th>
+                        <th>Mark 2</th>
+                        <th>Mark 3</th>
+                        <th>Mark 4</th> 
+                    </tr>
+                    </thead>
+                    <tbody>';
+            if (mysqli_num_rows($q1) > 0) {
+                $aid =  $this->signAttendance($row1['stdid'],$paper_id);
+
+                while ($row = mysqli_fetch_assoc($q1)) {
+                    $sn++;
+                    $class_name = $row['name'];
+                    $id = $row['question_id'];
+                    $question = $row['question_name'];
+                    $opt1 = $row['mark1'];
+                    $opt2 = $row['mark2'];
+                    $opt3 = $row['mark3'];
+                    $opt4 = $row['mark4'];
+                    $init= trim($row['time'])+0;
+                    $minute=floor(($init/60)) ;
+                    $sec=$init%60;
+                    
+                    $r .= '<tr>
+                            <td>' . $sn . '</td>
+                            <td class="text-left">' . htmlspecialchars_decode($question) . '</td>
+                            <td> 
+                               <label id="ans1_'.$sn.'" class="quest" rel="'. $id.'">
+                                    <h4> <input type="radio" rel="'. $id.'"
+                                            role="c'.$sn.'" class="mark" data-stdid='.$row1['stdid'].' value="'.$opt1.'" id="'. $sn.'" name="'. $sn.'" />
+                                            '.$opt1.'
+                                    </h4>
+                                </label>
+                            </td>
+                            <td> 
+                               <label id="ans1_'.$sn.'" >
+                                    <h4> <input type="radio" rel="'. $id.'"
+                                            role="c'.$sn.'" class="mark" data-stdid='.$row1['stdid'].' value="'.$opt2.'" id="'. $sn.'" name="'. $sn.'" />
+                                            '.$opt2.'
+                                    </h4>
+                                </label>
+                            </td>
+                            <td> 
+                               <label id="ans1_'.$sn.'" >
+                                    <h4> <input type="radio" rel="'. $id.'"
+                                            role="c'.$sn.'" class="mark" data-stdid='.$row1['stdid'].' value="'.$opt3.'" id="'. $sn.'" name="'. $sn.'" />
+                                            '.$opt3.'
+                                    </h4>
+                                </label>
+                            </td>
+                            <td> 
+                               <label id="ans1_'.$sn.'" >
+                                    <h4> <input type="radio" rel="'. $id.'"
+                                            role="c'.$sn.'" class="mark" data-stdid='.$row1['stdid'].' value="'.$opt4.'" id="'. $sn.'" name="'. $sn.'" />
+                                            '.$opt4.'
+                                    </h4>
+                                </label>
+                            </td>
+                        </tr>
+
+                    ';
+                }
+                echo $r;
+                echo '</tbody></table>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="head2  text-center text-uppercase" style="font-size: 3vmin;margin-top:20px; ">
+                                <span class="clock text-center" style="background-color: green;color:white">
+
+                                    <hr class="timer"/>
+                                <span>
+                                    <b><span class="min">'.str_pad($minute,2,"0",STR_PAD_LEFT).'</span>
+                                    <span>
+                                <span> : </span>
+                                </span>
+                                        <span class="sec">'. str_pad($sec,2,"0",STR_PAD_LEFT).'</span></b>
+                                        <input type="hidden" name="aid" value="'.$aid.'" id="aid"/>
+                                </span>
+                                </span>
+                                <hr>
+
+                                <h1 class="text-primary">Total: <b id="total" class="text-danger">0</b></h1>
+                                <br>
+                                <button class="btn btn-danger submit-grading" data-student="'.$student.'" data-paper="'.$paper_id.'">Submit</div>
+                            </div>
+                        </div>';
+            }
+        }else{
+            echo "<h4 class='text-center'>Student not found!</h4>";
+        }
+    }
     function getStudentModal($surname='',$othername='',$dept='',$regno=''){
         $this->class = new _Class();
         $r ='<div class="panel panel-success cbtlogin" >

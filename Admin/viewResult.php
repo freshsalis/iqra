@@ -27,7 +27,7 @@ if(isset($_GET['batch'])){
 if(isset($_GET['id'])){
     $idm = $_GET['id'];
     if(isset($_GET['action']) && $_GET['action'] =="force"){
-        $question->forceSubmit($idm,$batch);
+        $question->forceSubmit($idm,$_GET['paper']);
         // die();
     }
 }
@@ -62,7 +62,7 @@ if(isset($_GET['id'])){
                 <div class="col-md-3">
                     <div class="box box-solid">
                         <?php
-                        echo $test ->getTestMenu($idm,'viewResult.php?id=');
+                        echo $test ->getExamMenu($idm,'viewResult.php?id=');
                         ?>
 
                     </div><!-- /. box -->
@@ -71,7 +71,7 @@ if(isset($_GET['id'])){
                 <div class="col-md-2">
                     <div class="box box-solid">
                     <?php
-                        echo $test ->getBatchMenu($idm , 'viewResult.php',$batch);
+                        echo $test ->getPaperMenu($idm , 'viewResult.php',$_GET['paper'] ?? "","all");
                         ?>
                     
 
@@ -83,7 +83,7 @@ if(isset($_GET['id'])){
                     <div class="box box-primary">
                         <!-- /.box-header -->
                         <?php
-                        echo $question ->getResultTable($idm,$batch);
+                        echo $question ->getResultTable($idm,$_GET['paper'] ?? "");
                         ?>
 
                     </div><!-- /. box -->

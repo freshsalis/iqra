@@ -1215,16 +1215,75 @@ function adminLogin() {
   });
 }
 
+function examinerLogin() {
+  jQuery(".examiner-login").submit(function (e) {
+    e.preventDefault();
+    $(".alert1").hide();
+    jQuery("#error").hide();
+    var uname = $("#username").val();
+    var password = $("#pwd").val();
+    // alert(uname)
+    $.ajax({
+      type: "POST",
+      url: "examiner_gateway.php",
+      data: "&uname=" + uname + "&password=" + password,
+      success: function (msg) {
+        if (msg == 4) {
+          jQuery(".alert1")
+            .removeAttr("hidden")
+            .html(
+              '<span><img src="../images/mm.gif"/></span><b>Success! </b>Login Sucessfully'
+            )
+            .fadeToggle("fast");
+          jQuery("#error").hide();
+          jQuery("#subm").hide();
+          setTimeout(function () {
+            window.location="dashboard.php"
+          }, 3000);
+        }
+        //else alert(msg);/*
+        else if (msg == 2) {
+          $(".alert1")
+            .html(
+              '<h6 class="text-danger">Error! Invalid username and password</h6>'
+            )
+            .fadeToggle("fast");
+        } else {
+          $(".alert1")
+            .html('<h6 class="text-danger">Error! cannot login,try again</h6>')
+            .fadeToggle("fast");
+        }
+        //*/
+      },
+    });
+    return false;
+  });
+}
+
+function updateScore(questionId, score) {
+  if (scores.hasOwnProperty(questionId)) {
+    // If the questionId already exists, update the score
+    scores[questionId] = score;
+  } else {
+    // If the questionId doesn't exist, insert the score
+    scores[questionId] = score;
+  }
+}
+
 /*
  *  document dot ready
  * */
+const scores = {};
+var total_grade = 0;
 
 $(document).ready(function (e) {
   // full screen
   login();
   adminLogin();
+  examinerLogin();
   manageQuestionApp();
   $(".alert1").hide();
+
 
   // generate num nav when loading...
   var a = $(".last").val();
@@ -1565,6 +1624,85 @@ $(document).ready(function (e) {
             .removeAttr("hidden")
             .show()
             .text("Paper already exist")
+            .css({
+              color: "red",
+              padding: "10px",
+              "font-weight": "bold",
+            });
+          // .fadeOut(6000);
+        } else if (msg == 2) {
+          $(".msg")
+            .removeAttr("hidden")
+            .show()
+            .text("Unable to insert, try again")
+            .css({
+              color: "red",
+              padding: "10px",
+              "font-weight": "bold",
+            })
+            .fadeOut(6000);
+        } else if (msg == 3) {
+          $(".msg")
+            .removeAttr("hidden")
+            .show()
+            .text("Some fields cannot be empty")
+            .css({
+              color: "red",
+              padding: "10px",
+              "font-weight": "bold",
+            });
+          // .fadeOut(6000);
+        }
+    }})
+
+    $(".msg")
+            .removeAttr("hidden")
+            .show()
+            .text("Error, please contact system admin.")
+            .css({
+              color: "red",
+              padding: "10px",
+              "font-weight": "bold",
+            });
+      return false;
+  })
+
+  $(document).on("submit", "#examiner-form", function (e) {
+    e.preventDefault();
+
+    var id = "add";
+    var data = "examiner";
+
+    $(".msg")
+          .removeAttr("hidden")
+          .show()
+          .text("Please wait...")
+
+    var form_data = $(this).serialize() + "&id=" + id + "&data=" + data;
+    $.ajax({
+      type: "POST",
+      url: "asset/config/process.php",
+      cache: false,
+      data: form_data,
+      success: function (msg) {
+        // alert(msg)
+        if (msg == 1) {
+          $(".msg")
+            .removeAttr("hidden")
+            .show()
+            .text("Examiner successfully added")
+            .css({
+              color: "green",
+              padding: "10px",
+              "font-weight": "bold",
+            });
+          location.reload();
+          // .fadeOut(6000);
+        } else if (msg == 0) {
+          $(".msg")
+            .removeAttr("hidden")
+            .show()
+            .text("Examiner already exist")
             .css({
               color: "red",
               padding: "10px",
@@ -2077,5 +2215,92 @@ $(document).ready(function (e) {
           
     }
   });
+
+  // search students 
+  $(document).on("click", "#search", function (e) {
+    e.preventDefault();
+
+    Object.keys(scores).forEach(questionId => {
+      delete scores[questionId];
+    }); 
+    
+    total_grade =0;
+    
+    var data = $("#grading-form").serialize();
+     
+      $("#status").text("Searching student please wait...");
+      $.ajax({
+            url: "../Admin/asset/config/search.php",
+            type: "POST",
+            data: data,
+            cache: false,
+            // dataType: 'JSON',
+            success: function (msg) {
+              $("#status").html(msg);
+
+            }
+
+      })
+  });
+
+  
+  $(document).on("click", ".mark", function (e) {
+    // e.preventDefault()
+    var qid = $(this).attr("rel");
+    var value = $(this).val();
+    var stid = $(this).data("stdid");
+
+    updateScore(qid, value);
+
+    let totalScore = 0;
+    for (const questionId in scores) {
+      if (scores.hasOwnProperty(questionId)) {
+        totalScore += parseFloat(scores[questionId]);
+      }
+    }
+    $('#total').text(totalScore);
+
+    total_grade = totalScore;
+   
+    var data = "optionClick";
+
+    
+    $.ajax({
+      type: "POST",
+      url: "../Admin/asset/config/process.php",
+      cache: false,
+      data:{"qId" :qid, "option": value,"id" :data,"data": data, "studentId": stid},
+      success: function (response) {},
+      error: function (e) {
+        alert("Error in network connection. Please contact system admin.")
+      }
+    });
+  });
+
+  $(document).on("click", ".submit-grading", function (e) {
+    // e.preventDefault()
+    var stid = $(this).data("student");
+    var paper = $(this).data("paper");
+
+    var status = $('#status').html();
+
+    $('#status').text("Processing grade please wait...");
+
+    
+    $.ajax({
+      type: "POST",
+      url: "./process_grade.php",
+      cache: false,
+      data:{"paper": paper, "std": stid},
+      success: function (response) {
+        $('#status').html(response);
+      },
+      error: function (e) {
+        alert("Error in network connection. Please contact system admin.")
+      }
+    });
+  });
+
+
 
 }); // end document dot ready function
