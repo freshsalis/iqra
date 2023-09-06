@@ -80,7 +80,7 @@ if(isset($_GET['id'])){
                 </div><!-- /.col -->
                 <div class="col-md-7">
 
-                    <div class="box box-primary">
+                <div class="box box-primary" style="width:100%;overflow:scroll">
                         <!-- /.box-header -->
                         <?php
                         echo $question ->getResultTable($idm,$_GET['paper'] ?? "");

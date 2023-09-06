@@ -1322,7 +1322,8 @@ class Question {
                                 <div class="jumbotron msg">
                                     <div class="panel panel-defaut report">
                                             <ul class="text-danger ul">
-                                                <li>Use the <a href="../question.csv" download>sample excel template</a> to insert ur questions</li>
+                                                <li>Use <a href="./obj_question_templete.csv" download>OBJ excel template</a> to insert ur questions or </li>
+                                                <li>Use <a href="./osce_question_template.csv" download>OSCE excel template</a> to insert ur questions </li>
                                                 <li>Do not increase or decrease number of columns of the excel file. Otherwise, it will not store data into database.</li>
                                             </ul>
                                             <img src="../images/status.gif" hidden="hidden" class="spin pull-center"/>
@@ -1390,7 +1391,7 @@ class Question {
                                             <ul class="text-danger ul">
                                                 <li>Make sure your document is in .docx format</li>
                                                 <li>Make sure your docx file follow the CBT format.</li>
-                                                <li>Download sample <a href="../card.docx">here</a> .</li>
+                                                <li>Download sample <a href="./word_question_templete.docx" download>here</a> .</li>
                                             </ul>
                                             <img src="../images/status.gif" hidden="hidden" class="spin pull-center"/>
                                     </div>

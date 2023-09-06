@@ -63,7 +63,7 @@ session_start();
 </div><!-- /.col -->
 
 <div class="col-md-9">
-<div class="box box-primary">
+<div class="box box-primary" style="width:100%;overflow:scroll">
 <!-- /.box-header -->
     <?php
         echo $student ->getStudentTable($idm,'');
