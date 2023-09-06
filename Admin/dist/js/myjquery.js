@@ -1392,9 +1392,9 @@ $(document).ready(function (e) {
         break;
       default: //end ajax
 
-      var formData = $(".form-add").serialize() + "&id=" + id + "&data=" + data+"&instruction="+idata;
+      var formData = $(".form-add").serialize() + "&id=" + id + "&data=" + data;
       if (data == 'test') {
-        var idata = CKEDITOR.instances.editor2.getData();
+
         var qps = $('#quest-section').val();
         var qpst = $('#qstn-student').val();
 
@@ -1414,7 +1414,7 @@ $(document).ready(function (e) {
             return;
         }
         formData =
-          $(".form-add").serialize() + "&id=" + id + "&data=" + data+"&instruction="+idata;
+          $(".form-add").serialize() + "&id=" + id + "&data=" + data;
       }
       
         console.log($(".form-add").serialize())
@@ -1475,7 +1475,6 @@ $(document).ready(function (e) {
                 }
                 break;
               case "student":
-                // alert(msg)
                 if (msg == 1) {
                   $(".msg")
                     .removeAttr("hidden")
@@ -1579,6 +1578,60 @@ $(document).ready(function (e) {
                     });
                   // .fadeOut(6000);
                 }
+                break;
+              case "exam":
+                  if (msg == 1) {
+                    $(".msg")
+                      .removeAttr("hidden")
+                      .show()
+                      .text("Exam successfully created")
+                      .css({
+                        color: "green",
+                        padding: "10px",
+                        "font-weight": "bold",
+                      });
+                    // .fadeOut(10000);
+                  } else if (msg == 0) {
+                    $(".msg")
+                      .removeAttr("hidden")
+                      .show()
+                      .text("Exam already exist")
+                      .css({
+                        color: "red",
+                        padding: "10px",
+                        "font-weight": "bold",
+                      });
+                    // .fadeOut(10000);
+                  } else if (msg == 2) {
+                    $(".msg")
+                      .removeAttr("hidden")
+                      .show()
+                      .text("Unable to insert, try again")
+                      .css({
+                        color: "red",
+                        padding: "10px",
+                        "font-weight": "bold",
+                      });
+                    // .fadeOut(6000);
+                  } else if (msg == 4) {
+                    $(".msg")
+                      .removeAttr("hidden")
+                      .show()
+                      .text("Some fields cannot be empty")
+                      .css({
+                        color: "red",
+                        padding: "10px",
+                        "font-weight": "bold",
+                      });
+                    // .fadeOut(10000);
+                  } else {
+                    $(".msg").removeAttr("hidden").show().text(msg).css({
+                      color: "red",
+                      padding: "10px",
+                      "font-weight": "bold",
+                    });
+                    // .fadeOut(10000);
+                  }
                 break;
             } //end inner switch
           }, //success function
@@ -1749,10 +1802,11 @@ $(document).ready(function (e) {
   $(document).on("submit", "#exam-form", function (e) {
     e.preventDefault();
 
+    
     $(".msg")
           .removeAttr("hidden")
           .show()
-          .text("Please wait...")
+          .text("Please wait...2")
     var id = "add";
     var data = "exam";
 
@@ -1763,7 +1817,6 @@ $(document).ready(function (e) {
       cache: false,
       data: form_data,
       success: function (msg) {
-        // alert(msg)
         if (msg == 1) {
           $(".msg")
             .removeAttr("hidden")

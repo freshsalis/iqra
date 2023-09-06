@@ -117,21 +117,13 @@ if (!$_SESSION['adminId']) {
     </section>
     <section class="content">
         <div class="row">
-            <div class="col-md-3">
-                <div class="box box-solid">
-                    <?php
-                    echo $class ->getClassMenu($idm,'addTest.php?id=');
-                    ?>
-
-                </div><!-- /. box -->
-                
-            </div><!-- /.col -->
-            <div class="col-md-9">
+           
+            <div class="col-md-12">
 
                 <div class="box box-primary">
                     <!-- /.box-header -->
                     <?php
-                    echo $test ->getTestForm($idm);
+                    echo $test ->getTestForm();
                     ?>
 
                 </div><!-- /. box -->

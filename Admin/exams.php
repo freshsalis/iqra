@@ -86,7 +86,7 @@ echo $user->getHeader();
 
 
 <div class="modal fade" id="exam_modal" tabindex="-1" data-backdrop="static" role="dialog" aria-labelledby="exam_modal">
-    <div class="modal-dialog modal-md mdls" role="document">
+    <div class="modal-dialog panel modal-md mdls" role="document">
         <div class="modal-heading"><h3>Create New Exam</h3></div>
         <div class="modal-content">
             <div class="modal-body">
@@ -118,16 +118,7 @@ echo $user->getHeader();
                                             </select>
                                         </div>
                                         <br/>
-                                        <div class="input-group">
-                                            <span class="input-group-addon">Instant result</span>
-                                            <select  class="form-control" name="iresult" id="iresult">
-                                            <option value="0" selected>No</option>
-                                                    <option value="1">Yes</option>
-                                                <option value="0" >No</option>
-                                                    <option value="1" selected>Yes</option>
-                                                
-                                            </select>
-                                        </div>
+                                        
                                         <br/>
                                         <div class="input-group">
                                             <b>Exam Instructions: </b>

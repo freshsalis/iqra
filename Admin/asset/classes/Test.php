@@ -67,13 +67,12 @@ class Test{
             $title = clean($_POST['testTitle']);
             
             $status= clean($_POST['status']);
-            $instant= clean($_POST['iresult']);
             
             $session= clean($_POST['session']);
             $instruction= clean($_POST['instruction']);
 
-            $sql = "insert into exam(name,status,instant_result,session,instruction) 
-            values('$title','$status','$instant','$session', '$instruction')";
+            $sql = "insert into exam(name,status,session,instruction) 
+            values('$title','$status','$session', '$instruction')";
             $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
 
             if ($q1) {
@@ -560,11 +559,10 @@ class Test{
         $row = mysqli_fetch_assoc($q1);
         $title = $row['name'];
         $status = $row['status'];
-        $instant = $row['instant_result'];
         $session = $row['session'];
         $instruction = $row['instruction'];
 
-        return $this -> getExamModal($title,$status,$instant,$session,$instruction);
+        return $this -> getExamModal($title,$status,$session,$instruction);
 
     }
 
@@ -793,7 +791,7 @@ class Test{
         return $r;
     }
 
-    function getExamModal($title='',$status,$instant,$session,$instruction){
+    function getExamModal($title='',$status,$session,$instruction){
         $this->class = new _Class();
         $r ='<div class="panel panel-success cbtlogin" >
                             <div class="panel-body">
@@ -839,21 +837,7 @@ class Test{
                                                 </select>
                                             </div>
                                             <br/>
-                                            <div class="input-group">
-                                                <span class="input-group-addon">Instant result</span>
-                                                <select  class="form-control" name="iresult" id="iresult">
-                                                    ';
-                                                    if ($instant ==0) {
-                                                        $r .='<option value="0" selected>No</option>
-                                                        <option value="1">Yes</option>';
-                                                    }elseif ($instant == 1) {
-                                                        $r .='<option value="0" >No</option>
-                                                        <option value="1" selected>Yes</option>';
-                                                    }
-                                                    $r .='
-                                                </select>
-                                            </div>
-                                            <br/>
+                                          
                                             <div class="input-group">
                                             <b>Exam Instructions: </b>
                                             <textarea class="col-md-12 form-control" name="instruction" cols="60" id="editor2" name="">'.$instruction.'</textarea>
@@ -1031,7 +1015,6 @@ class Test{
         $title = clean($_POST['testTitle']);
        
         $status= clean($_POST['status']);
-        $instant= clean($_POST['iresult']);
         $session= clean($_POST['session']);
         $instruction= clean($_POST['instruction']);
 
@@ -1040,7 +1023,6 @@ class Test{
 
         $sql = 'UPDATE exam SET name="'.$title.'",
                 status="'.$status.'",
-                instant_result="'.$instant.'",
                 session="'.$session.'",
                 instruction="'.$instruction.'"
                 WHERE exam_id="'.$idm.'" ';
@@ -1115,15 +1097,12 @@ class Test{
         }else echo mysqli_error(conn());
     }
 
-    public function getTestForm($class_id){
-        $sql = "SELECT * FROM class WHERE class_id='" . $class_id . "' ORDER BY classname";
-        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+    public function getTestForm(){
+       
         $r = '';
-        if (mysqli_num_rows($q1) > 0) {
-            while ($row = mysqli_fetch_assoc($q1)) {
-                $class = $row['classname'];
+       
                 $r .= '<div class="box-header with-border">
-                        <h3 class="box-title">Add Exam to '.$class.'</h3>
+                        <h3 class="box-title"> Create New Exam</h3>
                       </div>';
                 $r .='
                         <div class="box-body">
@@ -1134,38 +1113,15 @@ class Test{
                                             <div class="input-group">
                                                 <span class="input-group-addon">Exam Name (Course code) </span>
                                                 <input type="text" name="testTitle" id="testTitle" class="form-control" placeholder="">
-                                                <input type="hidden" value="'.$class_id.'" name="class_id" id="class_id" class="" placeholder="">
                                             </div>
                                             <br/>
-                                            <div class="input-group">
-                                                <span class="input-group-addon">Duration</span>
-                                                <input type="number" name="duration" id="duration" class="form-control" placeholder="In minutes">
-                                            </div><br/>
-                                            
+                                           
                                             <div class="input-group">
                                                 <span class="input-group-addon">Academic Session:</span>
                                                 <input type="text"  name="session" id="session" class="form-control" placeholder="">
                                             </div><br>
-                                            <div class="input-group">
-                                                <span class="input-group-addon">Question per Student</span>
-                                                <input type="number"  name="qstn-student" id="qstn-student" class="form-control" placeholder="No. of question per student">
-                                            </div><br>
-                                            <div class="input-group">
-                                                <span class="input-group-addon">Weight (Marks per right answer)</span>
-                                                <input type="number" value="1"  name="weight" id="weight" class="form-control" placeholder="No. of question per student">
-                                            </div><br>
-                                            <div class="input-group">
-                                                <span class="input-group-addon">Number of Sections</span>
-                                                <input type="number" value="1"  name="component" id="component" class="form-control" placeholder="No. of sections">
-                                            </div><br>
-                                            <div class="input-group">
-                                                <span class="input-group-addon">Questions per Sections (sect1,sect2,sect3)</span>
-                                                <input type="text"  name="quest-section" id="quest-section" class="form-control" placeholder="50,30,30">
-                                            </div><br>
-                                            <div class="input-group">
-                                                <span class="input-group-addon">No. of bactches</span>
-                                                <input type="number" default="1" min="1" value="1"  name="batches" id="baches" class="form-control" placeholder="50,30,30">
-                                            </div><br>
+                                           
+                                          
                                             <div class="input-group">
                                                 <span class="input-group-addon">Status</span>
                                                 <select  class="form-control" name="status" id="status">
@@ -1173,28 +1129,17 @@ class Test{
                                                     <option>Active</option>
                                                 </select>
                                             </div>
-                                            <br/>
-                                            <div class="input-group">
-                                                <span class="input-group-addon">Instant result</span>
-                                                <select  class="form-control" name="iresult" id="iresult">
-                                                    <option value="0">No</option>
-                                                    <option value="1">Yes</option>
-                                                </select>
-                                            </div>
-                                            <br>
-                                            <div class="input-group hidden" >
-                                                <span class="input-group-addon">Earnable score</span>
-                                                <input type="number" name="score" id="score" class="form-control" placeholder="">
-                                            </div>
+                                           
+                                           <br>
                                             <div class="input-group">
                                                 <b>Exam Instructions: </b>
-                                                <textarea class="col-lg-12 form-control" id="editor2" name=""></textarea>
+                                                <textarea class="col-lg-12 form-control" cols="100" rows="5" id="" name="instruction"></textarea>
                                             </div>
                                             <br>
                                         </div><!-- /input-group -->
 
                                                     <br/>
-                                                    <input type="submit" id="add" class="btn btn-primary form-control add" rel="test" value="Add" placeholder="">
+                                                    <input type="submit" id="add" class="btn btn-primary form-control add" rel="exam" value="Add" placeholder="">
                                 </form>
                                 </div><!-- /input-group -->
                                 <br/>
@@ -1205,13 +1150,8 @@ class Test{
 
                 ';
 
-            }
-        }
-        else{
-            $r .='<div class="box-header with-border">
-                    <div class="jumbotron"><div class="panel"><h3> Add Tests</h3></div></div>
-                      </div>';
-        }
+         
+       
         return $r;
     }
 

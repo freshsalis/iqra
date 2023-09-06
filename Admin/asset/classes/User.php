@@ -221,7 +221,7 @@ class User
                     <span class=" glyphicon glyphicon-chevron-down pull-right"></span>
                 </a>
                 <ul class="treeview-menu">
-                    <li><a href="addTest.php"><i class="glyphicon glyphicon-plus"></i> Add New Exam</a></li>
+                    <!--<li><a href="addTest.php"><i class="glyphicon glyphicon-plus"></i> Add New Exam</a></li>->>
                     <li><a href="viewTest.php"><i class="glyphicon glyphicon-th-list"></i> View Exams</a></li>
                     <li><a href="papers.php"><i class="glyphicon glyphicon-th-list"></i>Paper</a></li>
 
@@ -351,7 +351,7 @@ class User
                     <span class=" glyphicon glyphicon-chevron-down pull-right"></span>
                 </a>
                 <ul class="treeview-menu">
-                    <li><a href="addTest.php"><i class="glyphicon glyphicon-plus"></i> Add New Exams</a></li>
+                   <!-- <li><a href="addTest.php"><i class="glyphicon glyphicon-plus"></i> Add New Exams</a></li>-->
                     <li><a href="exams.php"><i class="glyphicon glyphicon-th-list"></i> View Exams</a></li>
                     <li><a href="papers.php"><i class="glyphicon glyphicon-book"></i>Papers</a></li>
                     <li><a href="examiners.php"><i class="glyphicon glyphicon-user"></i>Examinars</a></li>
