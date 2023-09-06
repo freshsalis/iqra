@@ -3,9 +3,9 @@
     $mysqlUserName      = "root";
     $mysqlPassword      = "";
     $mysqlHostName      = "localhost";
-    $DbName             = "test_master";
-    $backup_name        = "testMaster_backup".date('d_m_Y h:i').".sql";
-    $tables             = array("admin","attendance","access_token","class","question","question_type","schedule_student","student","sub_question","test","testscore","test_attempt","track_timer");
+    $DbName             = "iqra";
+    $backup_name        = "iqra_testMaster_backup".date('d_m_Y h:i').".sql";
+    $tables             = array("admin","attendance","class","question","question_type","schedule_student","student","sub_question","test","testscore","test_attempt","track_timer","exam","examiners","papers");
 
    //or add 5th parameter(array) of specific tables:    array("mytable1","mytable2","mytable3") for multiple tables
 

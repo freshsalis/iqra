@@ -301,15 +301,14 @@ class User
                 <ul class="treeview-menu">
                     <li><a href="viewStudent.php"><i class="glyphicon glyphicon-asterisk"></i>Manage Student</a></li>
                     <li><a href="addStudent.php"><i class="glyphicon glyphicon-plus"></i>Upload New Students</a></li>
-                    <li><a href="addIndividualStudent.php"><i class="glyphicon glyphicon-plus"></i>Add Indivinual Student</a></li>
-
+                   <!-- <li><a href="addIndividualStudent.php"><i class="glyphicon glyphicon-plus"></i>Add Indivinual Student</a></li>-->
                 </ul>
             </li>
-            <li class=" treeview">
+           <!-- <li class=" treeview">
                 <a href="unlock.php">
                     <i class="glyphicon glyphicon-lock"></i> <span>Unlock Student</span> 
                 </a>
-            </li>
+            </li>-->
             <li class=" treeview">
                 <a href="access_tokens.php">
                     <i class="glyphicon glyphicon-lock"></i> <span>Access Tokens</span> 
@@ -328,12 +327,12 @@ class User
                         <i class="glyphicon glyphicon-check"></i> <span>View Attendance</span> 
                         </a>
                     </li>
-                    <li><a href="without_score.php"><i class="glyphicon glyphicon-plus"></i> Attendance without score</a></li>
+                   <!-- <li><a href="without_score.php"><i class="glyphicon glyphicon-plus"></i> Attendance without score</a></li>
                     <li><a href="absentees.php"><i class="glyphicon glyphicon-plus"></i> Absentees</a></li>
-                    <li><a href="reset_exam.php"><i class="glyphicon glyphicon-file"></i> Reset Exam</a></li>
+                    <li><a href="reset_exam.php"><i class="glyphicon glyphicon-file"></i> Reset Exam</a></li> -->
                 </ul>
             </li>
-            <li class="treeview">
+            <!-- <li class="treeview">
                 <a href="#">
                     <i class="glyphicon glyphicon-cog"></i>
                     <span>Class</span>
@@ -343,7 +342,7 @@ class User
                     <li><a href="viewClass.php"><i class="glyphicon glyphicon-th-list"></i> View Class</a></li>
                     <li><a href="addClass.php"><i class="glyphicon glyphicon-plus"></i> Add New Class</a></li>
                 </ul>
-            </li>
+            </li>-->
             <li class="treeview">
                 <a href="#">
                     <i class="glyphicon glyphicon-cog"></i>
@@ -386,8 +385,8 @@ class User
                     <span class=" glyphicon glyphicon-chevron-down pull-right"></span>
                 </a>
                 <ul class="treeview-menu">
-                    <li><a href="analysis.php"><i class="glyphicon glyphicon-th-list"></i> Analysis</a></li>
-                    <li><a href="viewResult.php"><i class="glyphicon glyphicon-th-list"></i> View/Download Results</a></li>
+                    <!--<li><a href="analysis.php"><i class="glyphicon glyphicon-th-list"></i> Analysis</a></li>-->
+                    <li><a href="viewResult.php"><i class="glyphicon glyphicon-th-list"></i> View & Download Results</a></li>
                 </ul>
             </li> 
             <li class=" treeview">

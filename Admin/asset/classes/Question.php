@@ -1371,7 +1371,7 @@ class Question {
                                             <span class="input-group-addon">Paper</span>
                                             
                                                 ';
-                                                $r .= $test->getPaperCombo($exam_id);
+                                                $r .= $test->getObjPaperCombo($exam_id);
                                         
                                             $r .='
                                             </select>

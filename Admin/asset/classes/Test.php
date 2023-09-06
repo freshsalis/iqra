@@ -979,6 +979,34 @@ class Test{
 
     }
 
+    function getObjPaperCombo($exam_id,$default = '')
+    {
+        $r = '<select name="paper" id="paper" class="col-md-12 form-control">';
+        $sql = "SELECT * FROM papers WHERE exam_id='".$exam_id."' AND paper_type_id=1 ORDER BY name";
+        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+        $sn = 0;
+
+        if (mysqli_num_rows($q1) > 0) {
+            while ($row = mysqli_fetch_assoc($q1)) {
+                $sn++;
+                $id = $row['paper_id'];
+                $name = $row['name'];
+
+                //check for the selected option
+                if ($default != '' && $default == $id) {
+                    $option = '<option value=' . $id . ' selected>' . $name . '</option>';
+                    $r .= $option;
+                } else {
+                    $option = '<option value=' . $id . '>' . $name . '</option>';
+                    $r .= $option;
+                }
+            }
+            return $r;
+        }
+
+
+    }
+
     function getOtherPaperCombo($exam_id,$default = '')
     {
         $r = '<select name="paper" id="paper" class="col-md-12 form-control">';
@@ -1975,7 +2003,7 @@ return $r;
 
     }
 
-    public function attendance($test_id,$batch)
+    public function attendance($test_id,$paper)
     {
         $class_name ='';
         $r = '';
@@ -1999,7 +2027,7 @@ return $r;
                 </tr>
                 </thead>
                 <tbody>';
-        if ($batch ==='all') {
+        if ($paper ==='all') {
             $sql = "SELECT *
                 FROM schedule_student
                 INNER JOIN attendance a ON a.stdid = schedule_student.stdid
@@ -2010,9 +2038,8 @@ return $r;
         $sql = "SELECT *
                 FROM schedule_student
                 INNER JOIN attendance a ON a.stdid = schedule_student.stdid
-                INNER JOIN test
-                ON schedule_student.test_id = test.test_id
-                WHERE schedule_student.test_id = '".$test_id."' AND batch='".$batch."'";
+                INNER JOIN papers p ON p.paper_id = a.paper_id
+                WHERE p.paper_id = '".$paper."' ";
         }
         $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
         $sn = 0;
@@ -2067,10 +2094,10 @@ return $r;
             </div>
         ';
             echo '<div class="box-header with-border">
-                        <h3 class="box-title">'.$test.' Attendance (Batch: '.$batch.')</h3>
+                        <h3 class="box-title">'.$test.' Attendance </h3>
                       </div>';
             echo '<div class="box-header with-border">
-                <a href="../attendanceExcel.php?tid='.$test_id.'&batch='.$batch.'"class="btn btn-md btn-primary pull-right" id="download" rel="'.$class_name.'">Download <span class="glyphicon glyphicon-download-alt"></span></a>
+                <a href="../attendanceExcel.php?tid='.$test_id.'&paper='.$paper.'"class="btn btn-md btn-primary pull-right" id="download" rel="'.$class_name.'">Download <span class="glyphicon glyphicon-download-alt"></span></a>
 
         </div>';
         }
@@ -2225,6 +2252,12 @@ return $r;
                 $del10="DELETE FROM  schedule_student";
                 $response10= mysqli_query(conn(), $del10) or die(mysqli_error(conn()));
                 $del11="DELETE FROM  access_token";
+                $response11= mysqli_query(conn(), $del11) or die(mysqli_error(conn()));
+                $del11="DELETE FROM  exam";
+                $response11= mysqli_query(conn(), $del11) or die(mysqli_error(conn()));
+                $del11="DELETE FROM  examiners";
+                $response11= mysqli_query(conn(), $del11) or die(mysqli_error(conn()));
+                $del11="DELETE FROM  papers";
                 $response11= mysqli_query(conn(), $del11) or die(mysqli_error(conn()));
                 return 1;
                         

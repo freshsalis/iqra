@@ -54,7 +54,7 @@ if(isset($_GET['id']))
                 <div class="col-md-3">
                     <div class="box box-solid">
                         <?php
-                        echo $test ->getTestMenu($idm,'attendance.php?id=');
+                        echo $test ->getExamMenu($idm,'attendance.php?id=');
                         ?>
 
                     </div><!-- /. box -->
@@ -63,7 +63,7 @@ if(isset($_GET['id']))
                 <div class="col-md-2">
                     <div class="box box-solid">
                     <?php
-                        echo $test ->getBatchMenu($idm , 'attendance.php',$batch);
+                        echo $test ->getPaperMenu($idm , 'attendance.php',$_GET['paper'] ?? "");
                         ?>
                     
 
@@ -75,7 +75,7 @@ if(isset($_GET['id']))
                     <div class="box box-primary" style="width:100%;overflow:scroll">
                         <!-- /.box-header -->
                         <?php
-                        echo $test ->attendance($idm,$batch);
+                        echo $test ->attendance($idm,$_GET['paper'] ?? "");
                         ?>
 
                     </div><!-- /. box -->

@@ -2,16 +2,16 @@
 require_once 'Admin/asset/classes/db.php';
 date_default_timezone_set('Africa/Lagos');
  	 $test_id = $_GET['tid'];
-	  $batch = $_GET['batch'];
- 	$t1 = "SELECT * from test WHERE test_id='".$test_id."'";
+	  $paper = $_GET['paper'];
+ 	$t1 = "SELECT * from papers WHERE paper_id='".$paper."'";
  	$query = mysqli_query(conn(),$t1) or die(mysqli_error(conn()));
  	$row = mysqli_fetch_assoc($query);
  	 $testname = $row['name']."";
-    $filename = str_replace(" ", "_", $testname)." attendance (Batch_".$batch.") as at ".date('d-m-Y, h_i a');         //File Name
+    $filename = str_replace(" ", "_", $testname);         //File Name
 
 
 	//querying the database  
-	if ($batch ==='all') {
+	if ($paper ==='all') {
 		$Q = 'SELECT schedule_student.surname,schedule_student.othername,schedule_student.dept,
 			schedule_student.reg_no,test.name,
 			a.time_in,a.time_out,
@@ -24,15 +24,13 @@ date_default_timezone_set('Africa/Lagos');
 			WHERE test.test_id="'.$test_id.'" ORDER BY reg_no';
 	} else{
 	$Q = 'SELECT schedule_student.surname,schedule_student.othername,schedule_student.dept,
-				schedule_student.reg_no,test.name,
+				schedule_student.reg_no,p.name,
 				a.time_in,a.time_out,
 				ip_address
-				FROM  schedule_student
-				INNER JOIN attendance a ON a.stdid = schedule_student.stdid
-                INNER JOIN test
-                ON a.stdid = schedule_student.stdid
-                AND a.test_id = test.test_id
-                WHERE test.test_id = '.$test_id.' AND batch="'.$batch.'" ORDER BY reg_no';
+                FROM schedule_student
+                INNER JOIN attendance a ON a.stdid = schedule_student.stdid
+                INNER JOIN papers p ON p.paper_id = a.paper_id
+                WHERE p.paper_id = "'.$paper.'" ';
 	}
 		$result=mysqli_query(conn(),$Q) or die(mysqli_error(conn()));
 	

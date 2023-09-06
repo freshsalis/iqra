@@ -5,6 +5,7 @@
  * Date: 1/8/2018
  * Time: 9:21 AM
  */
+date_default_timezone_set('Africa/Lagos');
 
 define('HOSTNAME','localhost');
 define('DB_USERNAME','root');

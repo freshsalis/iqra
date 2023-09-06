@@ -62,6 +62,9 @@
                     <div class="checkbox icheck">
                         Student's <a href="../login.php">login</a>
                     </div>
+                    <div class="checkbox icheck">
+                        Examiner's <a href="../examiner/">login</a>
+                    </div>
                 </div><!-- /.col -->
                 <div class="col-xs-4">
                     <button type="submit" id="subm" class="btn btn-primary btn-block btn-flat">Login</button>

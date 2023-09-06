@@ -1,7 +1,7 @@
 <?php 
     
 
-    $conn = mysqli_connect("localhost", "root", "", "test_master");
+    $conn = mysqli_connect("localhost", "root", "", "iqra");
     if (!empty($_FILES)) {
 
         // Validating SQL file type by extensions
@@ -17,7 +17,7 @@
                 $folder ="./backups";
                 move_uploaded_file($_FILES["backup_file"]["tmp_name"], $folder.$_FILES["backup_file"]["name"]);
                 // DROP TABLES IF EXIST
-                $sql = "DROP TABLE IF EXISTS admin,access_token,attendance,class,question,question_type,schedule_student,student,sub_question,test,testscore,test_attempt,track_timer";
+                $sql = "DROP TABLE IF EXISTS admin,attendance,class,question,question_type,schedule_student,student,sub_question,test,testscore,test_attempt,track_timer,exam,examiners,papers";
                 mysqli_query($conn, $sql) or die(mysqli_error(conn()));
                 $response = restoreMysqlDB($folder.$_FILES["backup_file"]["name"], $conn);
     
