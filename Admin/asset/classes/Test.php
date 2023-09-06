@@ -568,7 +568,7 @@ class Test{
 
     public function getEditExaminer(){
         $idm = $_POST['idm'];
-        $sql = 'select * from examiners E INNER JOIN papers p ON p.paper_id = e.paper_id WHERE examiner_id="'.$idm.'" limit 1';
+        $sql = 'select e.*,p.exam_id from examiners e INNER JOIN papers p ON p.paper_id = e.paper_id WHERE examiner_id="'.$idm.'" limit 1';
         $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
         $row = mysqli_fetch_assoc($q1);
         $name = $row['name'];
@@ -914,9 +914,7 @@ class Test{
                                 </div><!-- /.box-body -->
                             </div><!-- /.box -->
                             </div>
-                            <div class="modal-footer">
-                                <button class="btn btn-md btn-info" data-dismiss="modal">Close</button>
-                            </div>
+                           
                        
                 </div>
 
@@ -1094,6 +1092,27 @@ class Test{
                 session="'.$session.'",
                 instruction="'.$instruction.'"
                 WHERE exam_id="'.$idm.'" ';
+        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+
+        if($q1){
+            echo  1;
+        }else echo mysqli_error(conn());
+
+    }
+
+    public function  editExaminer(){
+        $name = clean($_POST['name']);
+        $paper = clean($_POST['paper']);
+        $password = clean($_POST['password']);
+        $username= clean($_POST['username']);
+
+        $idm = $_POST['idm'];
+
+        $sql = 'UPDATE examiners SET name="'.$name.'",
+                username="'.$username.'",
+                password="'.$password.'",
+                paper_id="'.$paper.'"
+                WHERE examiner_id="'.$idm.'" ';
         $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
 
         if($q1){

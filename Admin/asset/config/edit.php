@@ -46,6 +46,9 @@
             case 'editPaper':
                 $test ->editPaper();
                 break;
+            case 'editExaminers':
+                $test ->editExaminer();
+                break;
 
         }
 

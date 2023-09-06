@@ -586,7 +586,7 @@ function edit(idm, table, id) {
                   '<div class="alert alert1"><b>Success!</b> Edited Successfully</div>'
                 )
                 .css({ "background-color": "#F0F8FF", color: "green" });
-              setTimeout(' window.location = "viewClass.php"', 1000);
+              location.reload()
               $("#update").hide();
             } else {
               $("#alert1").html(
@@ -617,7 +617,7 @@ function edit(idm, table, id) {
                   '<div class="alert alert1"><b>Success!</b> Edited Successfully</div>'
                 )
                 .css({ "background-color": "#F0F8FF", color: "green" });
-              setTimeout(' window.location = "viewClass.php"', 1000);
+              Location.reload();
               $("#update").hide();
             } else {
               $("#alert1").html(
@@ -714,7 +714,7 @@ function myDelete(idm, id) {
           data: "&idm=" + idm + "&table=" + table,
           success: function (msg) {
             if (msg == 1) {
-              setTimeout(' window.location = "viewClass.php"', 500);
+              location.reload()
             }
           },
         });
