@@ -385,8 +385,8 @@ class Test{
                 </tr>
                 </thead>
                 <tbody>';
-            $sql = "SELECT * FROM access_token s INNER JOIN test t ON  t.test_id=exam_id
-                     WHERE exam_id='".$test_id."' ";
+            $sql = "SELECT * FROM access_token s INNER JOIN exam e ON  e.exam_id=s.exam_id
+                     WHERE s.exam_id='".$test_id."' ";
         
         
         $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
@@ -563,6 +563,19 @@ class Test{
         $instruction = $row['instruction'];
 
         return $this -> getExamModal($title,$status,$session,$instruction);
+
+    }
+
+    public function getEditExaminer(){
+        $idm = $_POST['idm'];
+        $sql = 'select * from examiners E INNER JOIN papers p ON p.paper_id = e.paper_id WHERE examiner_id="'.$idm.'" limit 1';
+        $q1 = mysqli_query(conn(), $sql) or die(mysqli_error(conn()));
+        $row = mysqli_fetch_assoc($q1);
+        $name = $row['name'];
+        $username = $row['username'];
+        $password = $row['password'];
+
+        return $this -> getExaminerModal($name,$username,$password,$row['paper_id'],$row["exam_id"], $row['examiner_id']);
 
     }
 
@@ -854,6 +867,61 @@ class Test{
             </div>
             </div>
             ';
+        return $r;
+    }
+
+    function getExaminerModal($name,$username,$password,$paper,$exam_id,$id){
+        $this->class = new _Class();
+        $r ='
+        <div class="row" >
+                
+                            <div class="box-body">
+                                <div class="box box-info">
+                                    <div class="box-body">
+                                        <form class="" role="form" id="cbt">
+                                            <div class="box-body">
+                                            <div class="input-group">
+                                            <span class="input-group-addon">Select Paper</span>
+                                                                            ';
+                                                $r.= $this->getOtherPaperCombo($exam_id,$paper);
+                                                $r.='
+                                                </select>
+                                                </div><br/>
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">Examiner Name </span>
+                                                    <input type="text" name="name" id="name" value="'.$name.'" class="form-control" placeholder="">
+                                                    <input type="hidden" name="id" id="id" value="'.$id.'" class="form-control" placeholder="">
+                                                </div>
+                                                <br/>
+                                            
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">Username</span>
+                                                    <input type="text" name="username" value="'.$username.'" id="username" class="form-control" placeholder="Username">
+                                                </div><br/>
+                                                
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">Login Password:</span>
+                                                    <input type="password"  value="'.$password.'" name="password" id="password" class="form-control" placeholder="*************">
+                                                </div><br>
+                                            
+                                            </div><!-- /input-group -->
+
+                                                       </form>
+                                    </div><!-- /input-group -->
+                                    <br/>
+                                    <div class=" msg" id="msg"></div>
+
+                                </div><!-- /.box-body -->
+                            </div><!-- /.box -->
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-md btn-info" data-dismiss="modal">Close</button>
+                            </div>
+                       
+                </div>
+
+        ';
+        
         return $r;
     }
 
@@ -1274,7 +1342,7 @@ class Test{
                                                 
                                                 <div class="input-group">
                                                     <span class="input-group-addon">Login Password:</span>
-                                                    <input type="number"  name="password" id="password" class="form-control" placeholder="*************">
+                                                    <input type="text"  name="password" id="password" class="form-control" placeholder="*************">
                                                 </div><br>
                                             
                                             </div><!-- /input-group -->
@@ -1684,12 +1752,12 @@ return $r;
 						<td>' . $username . ' </td>
 						<td>' . $paper . ' </td>
 						<td>
-							<a title="edit" href="javascript:void(0)" rel="student" class="btn btn-primary btn-sm edit" data-toggle="modal" data-target="#addstudent" data-whatever="@mdo" onclick="mode(' . $id . ','.$exam_id.');">
+							<a title="edit" href="javascript:void(0)" rel="examiner" class="btn btn-primary btn-sm edit" data-toggle="modal" data-target="#addstudent" data-whatever="@mdo" onclick="mode(' . $id . ','.$exam_id.');">
 							    <span class="glyphicon glyphicon-pencil"></span>
 							 </a>
 
 
-							<a type="button" title="delete" class="btn btn-danger btn-sm delete"  rel="student" data-toggle="modal" data-target="#delete" data-whatever="@mdo" onclick="myDelete(' . $id . ','.$exam_id.');"><span class="glyphicon glyphicon-trash"></span>
+							<a type="button" title="delete" class="btn btn-danger btn-sm delete"  rel="examiner" data-toggle="modal" data-target="#delete" data-whatever="@mdo" onclick="myDelete(' . $id . ','.$exam_id.');"><span class="glyphicon glyphicon-trash"></span>
 							</a>
 
 						</td>

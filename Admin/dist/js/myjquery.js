@@ -132,7 +132,7 @@ function mode(idm, section_id="") {
         },
       });
       return false;
-      break;
+    break;
 
     case "class":
       var data = "editClass";
@@ -148,6 +148,25 @@ function mode(idm, section_id="") {
             $(".alert1").hide();
             $("#error").hide();
             edit(idm, "class", section_id);
+          }
+        },
+      });
+      return false;
+      break;
+    case "examiner":
+      var data = "editExaminer";
+      var id = "edit";
+      $.ajax({
+        type: "POST",
+        url: "asset/config/process.php",
+        data: { data: data, idm: idm, id: id },
+        success: function (msg) {
+          if (msg != "") {
+            $(document).find(".myclass").html("");
+            $(document).find(".myclass").html(msg);
+            $(".alert1").hide();
+            $("#error").hide();
+            edit(idm, "examiner", section_id);
           }
         },
       });
@@ -580,7 +599,38 @@ function edit(idm, table, id) {
         });
       });
 
-      break;
+    break;
+
+    case "examiner":
+      $("#update").on("click", function (e) {
+        e.preventDefault();
+        var dt = "editExaminers";
+        var formData = $("#cbt").serialize() + "&dt=" + dt + "&idm=" + idm;
+        $.ajax({
+          type: "POST",
+          url: "asset/config/edit.php",
+          data: formData,
+          success: function (msg) {
+            if (msg == 1) {
+              $("#alert1")
+                .html(
+                  '<div class="alert alert1"><b>Success!</b> Edited Successfully</div>'
+                )
+                .css({ "background-color": "#F0F8FF", color: "green" });
+              setTimeout(' window.location = "viewClass.php"', 1000);
+              $("#update").hide();
+            } else {
+              $("#alert1").html(
+                '<div class="alert alert-danger alert1"><b>Error! Sorry the there is an error in your request' +
+                  msg +
+                  "</div>"
+              );
+            }
+          },
+        });
+      });
+
+    break;
   }
 }
 

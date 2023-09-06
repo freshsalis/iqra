@@ -75,6 +75,9 @@ if($converted < strtotime('6/6/2025')){
                 case "editExam":
                     echo $test ->getEditExam();
                     break;
+                case "editExaminer":
+                    echo $test ->getEditExaminer();
+                    break;
             }
 
             break;

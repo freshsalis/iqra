@@ -83,19 +83,26 @@ session_start();
 </div><!-- ./wrapper -->
 
 <!------------------------------------- Default modal --------------------------------------------------->
-<div class="modal fade modal-default" id="addstudent" tabindex="-1" role="dialog" aria-labelledby="addstudent1">
+<div class="modal fade modal-default" id="addstudent" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="addstudent1">
 
-    <!-- DELETE BATCH STUDENTS -->
     <div class="modal-dialog modal-md mdls" role="document">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <h4><span id="confirm">Create New Paper</span></h4>
-                    <?php echo $test->getPaperForm(); ?>
-                <div class="modal-footer">
-                    <button class="btn btn-md btn-info" data-dismiss="modal">Close</button>
+        <div class="modal-content">
+            <div class="modal-header"><h4><b>Edit Exam</b></h4></div>
+            <div class="modal-body">
+                <div ID="alert1"></div>
+                <div id="editbody"></div>
+                <div class="myclass"></div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="col-sm-10 col-sm-offset-2">
+                    <button class="btn btn-md btn-primary" type="submit"  id="update">Update</button>
+                    <a href="" class="btn btn-md btn-danger" >Close</a>
                 </div>
             </div>
-    </div>
+        </div>
+
+
     </div>
 </div>
 <!------------------------------------- Delete modal --------------------------------------------------->
