@@ -435,7 +435,6 @@ class Test{
 
         $r = '
             <div class="box-body" style="width:100%;overflow-x:auto;"><br><br>
-            <button data-toggle="modal" data-target="#del_batch_stud_modal" data-whatever="@mdo" test='.$exam_id.' id="new_paper" class="btn btn-md btn-primary pull-right">Create New Paper <span class="glyphicon glyphicon-delete"></span></button>
             <br><br/>
             <table id="example1" width="100%" class="table table-bordered table-striped table-responsive">
                 <thead>

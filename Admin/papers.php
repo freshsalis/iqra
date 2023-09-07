@@ -55,10 +55,12 @@ session_start();
 <section class="content">
 <div class="row">
 <div class="col-md-3">
-    <div class="box box-solid">
+    <div class="box box-solid">`                                    `
         <?php
             echo $test ->getExamMenu($idm,'?id=','token');
         ?>
+                    <button data-toggle="modal" data-target="#del_batch_stud_modal" data-whatever="@mdo" id="new_paper" class="btn btn-md btn-primary pull-right btn-block">Create New Paper <span class="glyphicon glyphicon-delete"></span></button>
+
     </div><!-- /. box -->
 </div><!-- /.col -->
 
