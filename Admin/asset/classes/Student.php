@@ -287,24 +287,30 @@ class Student{
                 }
                 echo $r;
                 echo '</tbody></table>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="head2  text-center text-uppercase" style="font-size: 3vmin;margin-top:20px; ">
-                                <span class="clock text-center" style="background-color: green;color:white">
+                        
+                        <div class="col-md-2" >
+                        <input type ="hidden" id="aid" value="'.$aid.'" name="aid" /></div>
+                        <input type ="hidden" id="paper" value="'.$paper_id.'" name="paper" /></div>
+                        <input type ="hidden" id="student" value="'.$student.'" name="student" /></div>
 
-                                    <hr class="timer"/>
-                                <span>
-                                    <b><span class="min">'.str_pad($minute,2,"0",STR_PAD_LEFT).'</span>
-                                    <span>
-                                <span> : </span>
-                                </span>
-                                        <span class="sec">'. str_pad($sec,2,"0",STR_PAD_LEFT).'</span></b>
-                                        <input type="hidden" name="aid" value="'.$aid.'" id="aid"/>
-                                </span>
-                                </span>
+                            <div id="time-panel" class="head2  text-center text-uppercase" style="font-size: 3em;margin-top:20px;padding:10px; ">
+                                <div class="timer">
+                                    <span class="clock text-center" style="background-color: green;color:white">
+
+                                        <hr class="timer"/>
+                                        <span>
+                                            <b><span class="min">'.str_pad($minute,2,"0",STR_PAD_LEFT).'</span>
+                                            <span>
+                                        <span> : </span>
+                                    </span>
+                                            <span class="sec">'. str_pad($sec,2,"0",STR_PAD_LEFT).'</span></b>
+                                            <input type="hidden" name="aid" value="'.$aid.'" id="aid"/>
+                                    </span>
+                                    </span>
+                                </div>
                                 <hr>
 
-                                <h1 class="text-primary">Total: <b id="total" class="text-danger">0</b></h1>
+                                <h1 class="text-primary">Total: <br><b id="total" class="text-danger">0</b></h1>
                                 <br>
                                 <button class="btn btn-danger submit-grading" data-student="'.$student.'" data-paper="'.$paper_id.'">Submit</div>
                             </div>

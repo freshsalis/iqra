@@ -988,10 +988,13 @@ function countdown(id) {
   var s = $(".sec");
   var duration = $("#dur").val() / 60;
   var half_time = duration * (2 / 3);
-  // alert(half_time+" "+duration)
   if (parseInt(m.html()) <= half_time) {
     $("#saveSubmit").removeClass("hidden");
   }
+
+  if (parseInt(m.html()) <= 3) {
+    $("#timer").addClass('blinking');
+  } 
   
   localStorage.setItem(id,JSON.stringify({"min": parseInt(m.html()),"sec": parseInt(s.html())}))
   if (m.html() == 0 && parseInt(s.html()) <= 0) {
@@ -1006,6 +1009,62 @@ function countdown(id) {
     submittest();
     setTimeout(' window.location = "./logout.php";', 40000);
     $("#saveSubmit").hide();
+  }
+  if (parseInt(s.html()) <= 0) {
+    m.html(padZero(parseInt(m.html() - 1)));
+    s.html(60);
+  }
+  if (parseInt(s.html()) <= 0) {
+    $(".clock").html('<span class="sec">59</span> seconds. ');
+  }
+  s.html(padZero(parseInt(s.html() - 1)));
+
+}
+
+function countdown2(id) {
+  var m = $(".min");
+  var s = $(".sec");
+  var duration = $("#dur").val() / 60;
+  var half_time = duration * (2 / 3);
+  // alert(half_time+" "+duration)
+  if (parseInt(m.html()) <= half_time) {
+    $("#saveSubmit").removeClass("hidden");
+  }
+
+  if (parseInt(m.html()) <= 3) {
+    $(".timer").addClass('blinking');
+  } 
+  
+  // console.log(id);
+  localStorage.setItem(id,JSON.stringify({"min": parseInt(m.html()),"sec": parseInt(s.html())}))
+  if (m.html() == 0 && parseInt(s.html()) <= 0) {
+    $(".clock").html("Time UP");
+    $(".question").hide();
+    // $('.clock').html('Done');
+    $(".clock").hide();
+    $(".numNav").hide();
+    $("#signout").hide();
+    $("#signout").hide();
+
+    // submittest();
+    // setTimeout(' window.location = "./logout.php";', 40000);
+    // $("#saveSubmit").hide();
+    var stid = $("#student").val();
+    var paper = $("#paper").val()
+    $.ajax({
+      type: "POST",
+      url: "./process_grade.php",
+      cache: false,
+      data:{"paper": paper, "std": stid},
+      success: function (response) {
+        $('#status').html(response);
+        localStorage.removeItem(id);
+        $("#time-panel").html("")
+      },
+      error: function (e) {
+        alert("Error in network connection. Please contact system admin.")
+      }
+    });
   }
   if (parseInt(s.html()) <= 0) {
     m.html(padZero(parseInt(m.html() - 1)));
@@ -2400,27 +2459,31 @@ $(document).ready(function (e) {
   });
 
   $(document).on("click", ".submit-grading", function (e) {
-    // e.preventDefault()
+    e.preventDefault()
     var stid = $(this).data("student");
     var paper = $(this).data("paper");
 
     var status = $('#status').html();
 
-    $('#status').text("Processing grade please wait...");
-
-    
-    $.ajax({
-      type: "POST",
-      url: "./process_grade.php",
-      cache: false,
-      data:{"paper": paper, "std": stid},
-      success: function (response) {
-        $('#status').html(response);
-      },
-      error: function (e) {
-        alert("Error in network connection. Please contact system admin.")
-      }
-    });
+    if (confirm("Are you sure you want to submit this grade?")) {
+      $('#status').text("Processing grade please wait...");
+      
+      $.ajax({
+        type: "POST",
+        url: "./process_grade.php",
+        cache: false,
+        data:{"paper": paper, "std": stid},
+        success: function (response) {
+          $('#status').html(response);
+          $("#time-panel").html("")
+          return false;
+        },
+        error: function (e) {
+          alert("Error in network connection. Please contact system admin.")
+        }
+      });
+    }
+    return;
   });
 
 

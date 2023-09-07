@@ -144,6 +144,17 @@ require_once 'Admin/asset/classes/Student.php';
         p {display:inline};
 
     </style>
+    <style>
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .blinking {
+            animation: blink 1s infinite;
+        }
+    </style>
 
 </head>
 <body class="login-page" oncontextmenu2="false">
@@ -327,17 +338,19 @@ require_once 'Admin/asset/classes/Student.php';
                         <div class="panel panel-default">
                             <div class="panel-body text-center">
                                 <div class="head2  text-center text-uppercase" style="font-size: 3vmin;margin-top:20px; ">
-                                    <span class="clock text-center" style="background-color: green;color:white">
+                                    <div id="timer">
+                                        <span class="clock text-center" style="background-color: green;color:white">
 
-                                        <hr class="timer"/>
-                                    <span>
-                                        <b><span class="min"><?php echo str_pad($minute,2,"0",STR_PAD_LEFT); ?></span>
+                                            <hr class="timer"/>
                                         <span>
-                                    <span> : </span>
-                                    </span>
-                                            <span class="sec"><?php echo str_pad($sec,2,"0",STR_PAD_LEFT); ?></span></b>
-                                    </span>
-                                    </span>
+                                            <b><span class="min"><?php echo str_pad($minute,2,"0",STR_PAD_LEFT); ?></span>
+                                            <span>
+                                        <span> : </span>
+                                        </span>
+                                                <span class="sec"><?php echo str_pad($sec,2,"0",STR_PAD_LEFT); ?></span></b>
+                                        </span>
+                                        </span>
+                                    </div>
                                 </div>
                                 <div class="mb-5">
                                     <button type="submit" class="btn btn-lg btn-danger col-lg-12 hidden mb-5" style="margin-bottom: 10px;" data-toggle="modal" data-target="#confirmSubmit" data-whatever="@mdo" id="saveSubmit" >Submit Exam</button>

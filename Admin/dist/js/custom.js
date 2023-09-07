@@ -748,10 +748,13 @@
     var s = $(".sec");
     var duration = $("#dur").val() / 60;
     var half_time = duration * (2 / 3);
-    // alert(half_time+" "+duration)
     if (parseInt(m.html()) <= half_time) {
       $("#saveSubmit").removeClass("hidden");
     }
+  
+    if (parseInt(m.html()) <= 3) {
+      $("#timer").addClass('blinking');
+    } 
     
     localStorage.setItem(id,JSON.stringify({"min": parseInt(m.html()),"sec": parseInt(s.html())}))
     if (m.html() == 0 && parseInt(s.html()) <= 0) {

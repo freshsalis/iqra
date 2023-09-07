@@ -63,6 +63,17 @@ if($numrows > 0){
       type="image/x-icon"
       href="./logo.png"
     />
+    <style>
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .blinking {
+            animation: blink 1s infinite;
+        }
+    </style>
 </head>
 <body class="login-page">
 <!-- <img src="../images/ba.jpg" class="img-responsive logo-img" width="100%" height="5%"/> -->
@@ -111,7 +122,7 @@ if($numrows > 0){
                 <div class="panel-body ">
                     <div class="col-md-12 text-center" style="min-height: 400px;">
                        <h3> <?php echo $paper_name?></h3>
-                       <form action="#" id="grading-form" method="post">
+                       <form action="" id="grading-form" method="post">
                             <div class="row">
                                 <div class="col-md-10">
                                     <div class="input-group">
@@ -122,13 +133,19 @@ if($numrows > 0){
                                 </div>
                                 <div class="col-md-2">
                                 <div class="input-group">
-                                        <input type="submit" value="Search" name="search" id="search" class="btn btn-primary" placeholder="">
+                                        <input type="submit" value="Search" name="search2" id="search2" class="btn btn-primary" placeholder="">
                                     </div>
                                 </div>
                             </div>
                             
                             <br/>
-                            <div id="status"></div>
+                            <div id="status">
+                                <?php 
+                                    if (isset($_POST['search2'])) {
+                                        echo $student->searchStudent(clean($_POST['paper']), clean($_POST['regno']));
+                                    }
+                                ?>
+                            </div>
                        </form>
                     </div>
 
@@ -150,20 +167,19 @@ if($numrows > 0){
 <script>
     
     $(document).ready(function (e) {
-          
-            setInterval ('countdown(aid)', 1000);
-            setInterval('trackTimer(<?php echo $stdid; ?>, <?php echo $paper_id; ?>)', 1000*5)
-            confirmSubmit();
-            optionClick(<?php echo $stdid; ?>);
-            logout();
+          const a = $(document).find('#aid').val();
 
-            var storedTime = JSON.parse(localStorage.getItem(aid));
+         setInterval(function() {
+            countdown2(a);
+        }, 1000)
+            
+
+            var storedTime = JSON.parse(localStorage.getItem(a));
+            // console.log(storedTime);
             $('.min').html(padZero(storedTime.min));
             $('.sec').html(padZero(storedTime.sec));
-            $('body').click(function() {
-                var elem = document.body;
-                requestFullScreen(elem);
-            });
+           
+            
         })
     
 </script>
